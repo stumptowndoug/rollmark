@@ -44,9 +44,10 @@ const STRUCTURED_CHART_SCHEMA = {
       },
     },
     series: {
+      // No maxItems: Anthropic's endpoint rejects it, and the runtime
+      // validator enforces the 8-series limit after serialization anyway.
       type: "array",
       minItems: 1,
-      maxItems: 8,
       items: {
         type: "object",
         additionalProperties: false,

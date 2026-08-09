@@ -18,11 +18,15 @@
 
 ## 🚧 In Progress
 
-- [ ] Eval: compare direct generation vs. structured output + serializer
-- [ ] Eval: summary-vs-data consistency scoring (LLM judge)
-- [ ] Eval: full clean baseline run (both arms + judge) for citable numbers
-
 ## ✅ Done
+
+- [x] Eval: compare direct generation vs. structured output + serializer
+  - [x] verdict: direct is near-ceiling and stays the default; structured helps weak models with syntax but degrades summary honesty (see `evals/FINDINGS.md`)
+- [x] Eval: summary-vs-data consistency scoring (LLM judge, `--judge`)
+  - [x] caught real dishonesty in 5 models ("steady increase" over dipping data); noisy — treat as review flag
+- [x] Eval: full clean baseline run (both arms + judge) for citable numbers
+  - [x] 9 models: 7/9 at 100% direct first-pass, 100% final for all but gemini (one chart-judgment miss); fidelity 100% direct-arm
+  - [x] provider strict-mode compatibility lessons captured in `evals/FINDINGS.md`
 
 - [x] Eval: run against real models via OpenRouter (9 models × 12 tasks, 2026-08-08)
   - [x] baseline: 6/9 models 100% first-pass; all failures diagnosed from saved documents
