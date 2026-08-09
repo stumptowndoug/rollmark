@@ -84,6 +84,11 @@ npm run eval                                  # model list from evals/models.jso
 npm run eval -- --models openai/gpt-4o-mini,qwen/qwen3-8b
 npm run eval -- --tasks ts-basic,prose-input --no-repair
 
+# Generation strategies: direct Markdown (default), structured output +
+# serializer, or both side by side. Optional LLM judge scores whether each
+# chart's summary is consistent with its data:
+npm run eval -- --mode both --judge google/gemini-3-flash-preview
+
 # Model ids drift; check what's available:
 npm run eval -- --list-models qwen
 ```

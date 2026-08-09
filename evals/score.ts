@@ -17,6 +17,11 @@ export interface MetricResults {
   hasTitle: boolean | null;
   hasSummary: boolean | null;
   renderOk: boolean | null;
+  /**
+   * Summary-vs-data consistency, filled in post-hoc by the LLM judge when
+   * one is configured. Reported separately; never affects `pass`.
+   */
+  summaryConsistent: boolean | null;
   /** All applicable metrics passed. */
   pass: boolean;
   /** Human-readable problems, used for the repair prompt and reports. */
@@ -35,6 +40,7 @@ export const METRIC_KEYS = [
   "hasTitle",
   "hasSummary",
   "renderOk",
+  "summaryConsistent",
 ] as const satisfies readonly (keyof MetricResults)[];
 
 /**
@@ -143,6 +149,7 @@ export function scoreDocument(task: EvalTask, document: string): MetricResults {
     hasTitle: null,
     hasSummary: null,
     renderOk: null,
+    summaryConsistent: null,
     pass: false,
     issues,
     warningCount: 0,

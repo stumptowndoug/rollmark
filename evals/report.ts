@@ -20,13 +20,13 @@ function summarizeModel(model: ModelResult): Record<string, string> {
   const repairsWon = repairsTried.filter((t) => t.final.pass);
   const tokens = model.tasks.reduce((n, t) => n + t.usage.completionTokens, 0);
   return {
-    model: model.model,
+    model: model.mode === "structured" ? `${model.model} [structured]` : model.model,
     firstPass: pct(firsts.filter((r) => r.pass).length, firsts.length),
     finalPass: pct(finals.filter((r) => r.pass).length, finals.length),
     repairSuccess: pct(repairsWon.length, repairsTried.length),
     schemaValid: metricColumn(firsts, "schemaValid"),
     dataFidelity: metricColumn(firsts, "dataFidelity"),
-    hasSummary: metricColumn(firsts, "hasSummary"),
+    summaryConsistent: metricColumn(finals, "summaryConsistent"),
     completionTokens: String(tokens || "—"),
   };
 }
@@ -38,21 +38,26 @@ export function toMarkdownReport(run: EvalRun): string {
   lines.push(`Started: ${run.startedAt} · Tasks: ${run.taskIds.length} (${run.taskIds.join(", ")})`);
   lines.push("");
   lines.push(
-    `| Model | First-pass | Final (with repair) | Repair success | Schema valid | Data fidelity | Has summary | Output tokens |`,
+    `| Model | First-pass | Final (with repair) | Repair success | Schema valid | Data fidelity | Summary consistent | Output tokens |`,
   );
   lines.push(`|---|---:|---:|---:|---:|---:|---:|---:|`);
   for (const model of run.models) {
     const s = summarizeModel(model);
     lines.push(
-      `| ${s.model} | ${s.firstPass} | ${s.finalPass} | ${s.repairSuccess} | ${s.schemaValid} | ${s.dataFidelity} | ${s.hasSummary} | ${s.completionTokens} |`,
+      `| ${s.model} | ${s.firstPass} | ${s.finalPass} | ${s.repairSuccess} | ${s.schemaValid} | ${s.dataFidelity} | ${s.summaryConsistent} | ${s.completionTokens} |`,
     );
   }
   lines.push("");
 
   const failures = run.models.flatMap((m) =>
     m.tasks
-      .filter((t) => !t.final.pass)
-      .map((t) => ({ model: m.model, task: t.taskId, issues: t.final.issues, error: t.error })),
+      .filter((t) => !t.final.pass || t.final.summaryConsistent === false)
+      .map((t) => ({
+        model: m.mode === "structured" ? `${m.model} [structured]` : m.model,
+        task: t.taskId,
+        issues: t.final.issues,
+        error: t.error,
+      })),
   );
   if (failures.length > 0) {
     lines.push(`## Failures`);

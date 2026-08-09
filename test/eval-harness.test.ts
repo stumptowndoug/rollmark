@@ -137,4 +137,55 @@ describe("eval harness", () => {
     expect(report).toContain("| mock-perfect |");
     expect(report).toContain("First-pass");
   });
+
+  it("structured mode serializes to a passing document and skips non-chart tasks", async () => {
+    const run = await runEvals(
+      [mockAdapter("perfect")],
+      getTasks(["ts-basic", "cat-multi", "multi-chart", "mermaid-flow", "no-chart"]),
+      { modes: ["structured"] },
+    );
+    const model = run.models[0]!;
+    expect(model.mode).toBe("structured");
+    expect(model.tasks.map((t) => t.taskId)).toEqual(["ts-basic", "cat-multi", "multi-chart"]);
+    for (const t of model.tasks) {
+      expect(t.final.pass, `${t.taskId}: ${t.final.issues.join("; ")}`).toBe(true);
+      expect(t.documents[0]).toContain("```chart");
+    }
+  });
+
+  it("structured mode repairs a semantically broken response", async () => {
+    const run = await runEvals([mockAdapter("sloppy")], getTasks(["ts-basic"]), {
+      modes: ["structured"],
+    });
+    const t = run.models[0]!.tasks[0]!;
+    expect(t.firstAttempt.pass).toBe(false);
+    expect(t.final.pass).toBe(true);
+    expect(t.repairAttempt).toBeDefined();
+  });
+
+  it("mode 'both' yields a direct and a structured row per model", async () => {
+    const run = await runEvals([mockAdapter("perfect")], getTasks(["ts-basic"]), {
+      modes: ["direct", "structured"],
+    });
+    expect(run.models.map((m) => m.mode)).toEqual(["direct", "structured"]);
+    const report = toMarkdownReport(run);
+    expect(report).toContain("mock-perfect [structured]");
+  });
+
+  it("records the judge verdict without affecting pass/fail", async () => {
+    const badJudge = {
+      id: "mock-judge-strict",
+      async generate() {
+        return { text: '{"consistent": false, "reason": "summary overstates growth"}' };
+      },
+    };
+    const run = await runEvals([mockAdapter("perfect")], getTasks(["ts-basic"]), {
+      judge: badJudge,
+    });
+    const t = run.models[0]!.tasks[0]!;
+    expect(t.final.pass).toBe(true); // judge never flips pass
+    expect(t.final.summaryConsistent).toBe(false);
+    expect(t.final.issues.some((i) => i.includes("[judge]"))).toBe(true);
+    expect(toMarkdownReport(run)).toContain("summary overstates growth");
+  });
 });

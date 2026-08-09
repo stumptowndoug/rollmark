@@ -2,8 +2,6 @@
 
 ## 📋 Backlog
 
-- [ ] Eval: compare direct generation vs. structured output + serializer
-- [ ] Eval: summary-vs-data consistency scoring (LLM judge)
 - [ ] Phase 2: Springroll integration behind thin API (`<Rollmark content={...} />`)
 - [ ] Phase 2: streaming-aware rendering (skeleton while fence open, upgrade on close)
 - [ ] Phase 2: static export adapter (SVG/PNG) for PDF and email
@@ -19,6 +17,10 @@
 - [ ] Phase 3: llms.txt-style machine-readable docs
 
 ## 🚧 In Progress
+
+- [ ] Eval: compare direct generation vs. structured output + serializer
+- [ ] Eval: summary-vs-data consistency scoring (LLM judge)
+- [ ] Eval: full clean baseline run (both arms + judge) for citable numbers
 
 ## ✅ Done
 

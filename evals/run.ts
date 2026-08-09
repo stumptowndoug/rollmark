@@ -2,15 +2,25 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { renderRollmark } from "../src/render.js";
 import type { ChatMessage, ModelAdapter } from "./adapters.js";
 import { OpenRouterAdapter, listOpenRouterModels, mockAdapter } from "./adapters.js";
+import { judgeSummary } from "./judge.js";
 import { toMarkdownReport } from "./report.js";
 import { repairableIssues, scoreDocument } from "./score.js";
 import type { MetricResults } from "./score.js";
+import {
+  STRUCTURED_RESPONSE_FORMAT,
+  serializeStructuredReport,
+  structuredApplicable,
+  structuredMessages,
+} from "./structured.js";
 import { getTasks } from "./tasks.js";
 import type { EvalTask } from "./tasks.js";
 
 const evalsDir = fileURLToPath(new URL(".", import.meta.url));
+
+export type EvalMode = "direct" | "structured";
 
 export interface TaskResult {
   taskId: string;
@@ -26,6 +36,7 @@ export interface TaskResult {
 
 export interface ModelResult {
   model: string;
+  mode: EvalMode;
   tasks: TaskResult[];
 }
 
@@ -42,39 +53,105 @@ function systemPrompt(): string {
   return match[1]!.trim();
 }
 
-function userPrompt(task: EvalTask): string {
-  return `${task.request}\n\nInput data:\n\n${task.input}`;
+function directMessages(system: string, task: EvalTask): ChatMessage[] {
+  return [
+    { role: "system", content: system },
+    { role: "user", content: `${task.request}\n\nInput data:\n\n${task.input}` },
+  ];
 }
 
 function repairPrompt(issues: string[]): string {
   return (
     `Your document failed validation with these problems:\n\n` +
     issues.map((i) => `- ${i}`).join("\n") +
-    `\n\nPlease reply with the complete corrected Markdown document.`
+    `\n\nPlease reply with the complete corrected output.`
   );
 }
 
-async function runTask(
-  adapter: ModelAdapter,
-  system: string,
-  task: EvalTask,
-  repair: boolean,
-): Promise<TaskResult> {
+function failedMetrics(message: string): MetricResults {
+  return {
+    markdownValid: false,
+    blockDetected: false,
+    jsonValid: null,
+    schemaValid: null,
+    chartTypeOk: null,
+    dataFidelity: null,
+    hasTitle: null,
+    hasSummary: null,
+    renderOk: null,
+    summaryConsistent: null,
+    pass: false,
+    issues: [message],
+    warningCount: 0,
+  };
+}
+
+interface RunTaskOptions {
+  adapter: ModelAdapter;
+  system: string;
+  task: EvalTask;
+  repair: boolean;
+  mode: EvalMode;
+  judge?: ModelAdapter;
+}
+
+async function runTask(opts: RunTaskOptions): Promise<TaskResult> {
+  const { adapter, system, task, repair, mode, judge } = opts;
   const usage = { promptTokens: 0, completionTokens: 0 };
   const documents: string[] = [];
-  const messages: ChatMessage[] = [
-    { role: "system", content: system },
-    { role: "user", content: userPrompt(task) },
-  ];
+  const structured = mode === "structured";
+  const meta = structured
+    ? { taskId: task.id, responseFormat: STRUCTURED_RESPONSE_FORMAT }
+    : { taskId: task.id };
+  const messages: ChatMessage[] = structured
+    ? structuredMessages(task)
+    : directMessages(system, task);
+
+  function toDocument(raw: string): { document: string; error?: string } {
+    if (!structured) return { document: raw };
+    try {
+      return { document: serializeStructuredReport(raw) };
+    } catch (cause) {
+      return {
+        document: raw,
+        error: `structured response was not valid report JSON: ${
+          cause instanceof Error ? cause.message : cause
+        }`,
+      };
+    }
+  }
+
+  async function judgeFinal(final: MetricResults, document: string): Promise<void> {
+    if (!judge || task.expected.blockType !== "chart" || !final.pass) return;
+    try {
+      const { blocks } = renderRollmark(document);
+      const specs = blocks.flatMap((b) => (b.type === "chart" && b.spec ? [b.spec] : []));
+      const verdicts = await Promise.all(specs.map((spec) => judgeSummary(judge, spec)));
+      final.summaryConsistent = verdicts.every((v) => v.consistent);
+      for (const v of verdicts) {
+        if (!v.consistent) final.issues.push(`[judge] summary inconsistent: ${v.reason}`);
+      }
+    } catch (cause) {
+      final.issues.push(`[judge] failed: ${cause instanceof Error ? cause.message : cause}`);
+    }
+  }
+
   try {
-    const first = await adapter.generate(messages, { taskId: task.id });
+    const first = await adapter.generate(messages, meta);
     usage.promptTokens += first.usage?.promptTokens ?? 0;
     usage.completionTokens += first.usage?.completionTokens ?? 0;
-    documents.push(first.text);
-    const firstAttempt = scoreDocument(task, first.text);
+    const firstDoc = toDocument(first.text);
+    documents.push(firstDoc.document);
+    const firstAttempt = scoreDocument(task, firstDoc.document);
+    if (firstDoc.error) {
+      firstAttempt.pass = false;
+      firstAttempt.jsonValid = false;
+      firstAttempt.issues.unshift(firstDoc.error);
+    }
 
     const visibleIssues = repairableIssues(firstAttempt);
     if (firstAttempt.pass || !repair || visibleIssues.length === 0) {
+      await judgeFinal(firstAttempt, firstDoc.document);
       return { taskId: task.id, firstAttempt, final: firstAttempt, documents, usage };
     }
 
@@ -82,66 +159,78 @@ async function runTask(
       { role: "assistant", content: first.text },
       { role: "user", content: repairPrompt(visibleIssues) },
     );
-    const second = await adapter.generate(messages, { taskId: task.id });
+    const second = await adapter.generate(messages, meta);
     usage.promptTokens += second.usage?.promptTokens ?? 0;
     usage.completionTokens += second.usage?.completionTokens ?? 0;
-    documents.push(second.text);
-    const repairAttempt = scoreDocument(task, second.text);
+    const secondDoc = toDocument(second.text);
+    documents.push(secondDoc.document);
+    const repairAttempt = scoreDocument(task, secondDoc.document);
+    if (secondDoc.error) {
+      repairAttempt.pass = false;
+      repairAttempt.jsonValid = false;
+      repairAttempt.issues.unshift(secondDoc.error);
+    }
+    await judgeFinal(repairAttempt, secondDoc.document);
     return { taskId: task.id, firstAttempt, repairAttempt, final: repairAttempt, documents, usage };
   } catch (cause) {
-    const failed: MetricResults = {
-      markdownValid: false,
-      blockDetected: false,
-      jsonValid: null,
-      schemaValid: null,
-      chartTypeOk: null,
-      dataFidelity: null,
-      hasTitle: null,
-      hasSummary: null,
-      renderOk: null,
-      pass: false,
-      issues: [`generation failed: ${cause instanceof Error ? cause.message : cause}`],
-      warningCount: 0,
-    };
+    const message = cause instanceof Error ? cause.message : String(cause);
     return {
       taskId: task.id,
-      firstAttempt: failed,
-      final: failed,
+      firstAttempt: failedMetrics(`generation failed: ${message}`),
+      final: failedMetrics(`generation failed: ${message}`),
       documents,
       usage,
-      error: String(cause instanceof Error ? cause.message : cause),
+      error: message,
     };
   }
+}
+
+export interface RunEvalsOptions {
+  repair?: boolean;
+  concurrency?: number;
+  modes?: EvalMode[];
+  judge?: ModelAdapter;
+  log?: (line: string) => void;
 }
 
 export async function runEvals(
   adapters: ModelAdapter[],
   tasks: EvalTask[],
-  options: { repair?: boolean; concurrency?: number; log?: (line: string) => void } = {},
+  options: RunEvalsOptions = {},
 ): Promise<EvalRun> {
   const repair = options.repair ?? true;
   const concurrency = options.concurrency ?? 4;
+  const modes = options.modes ?? ["direct"];
   const log = options.log ?? (() => {});
   const system = systemPrompt();
   const models: ModelResult[] = [];
 
   for (const adapter of adapters) {
-    log(`── ${adapter.id}`);
-    const results: TaskResult[] = new Array(tasks.length);
-    let next = 0;
-    async function worker(): Promise<void> {
-      while (next < tasks.length) {
-        const index = next++;
-        const task = tasks[index]!;
-        const result = await runTask(adapter, system, task, repair);
-        results[index] = result;
-        const marker = result.final.pass ? "✓" : "✗";
-        const repaired = result.repairAttempt ? " (after repair)" : "";
-        log(`  ${marker} ${task.id}${result.final.pass ? repaired : `: ${result.final.issues[0] ?? ""}`}`);
+    for (const mode of modes) {
+      const modeTasks = mode === "structured" ? tasks.filter(structuredApplicable) : tasks;
+      if (modeTasks.length === 0) continue;
+      log(`── ${adapter.id}${mode === "structured" ? " [structured]" : ""}`);
+      const results: TaskResult[] = new Array(modeTasks.length);
+      let next = 0;
+      async function worker(): Promise<void> {
+        while (next < modeTasks.length) {
+          const index = next++;
+          const task = modeTasks[index]!;
+          const result = await runTask({ adapter, system, task, repair, mode, judge: options.judge });
+          results[index] = result;
+          const marker = result.final.pass ? "✓" : "✗";
+          const repaired = result.repairAttempt ? " (after repair)" : "";
+          const judgeFlag = result.final.summaryConsistent === false ? " [summary inconsistent]" : "";
+          log(
+            `  ${marker} ${task.id}${
+              result.final.pass ? repaired + judgeFlag : `: ${result.final.issues[0] ?? ""}`
+            }`,
+          );
+        }
       }
+      await Promise.all(Array.from({ length: Math.min(concurrency, modeTasks.length) }, worker));
+      models.push({ model: adapter.id, mode, tasks: results });
     }
-    await Promise.all(Array.from({ length: Math.min(concurrency, tasks.length) }, worker));
-    models.push({ model: adapter.id, tasks: results });
   }
 
   return { startedAt: new Date().toISOString(), models, taskIds: tasks.map((t) => t.id) };
@@ -156,12 +245,21 @@ interface CliArgs {
   models: string[];
   tasks: string[];
   repair: boolean;
+  mode: "direct" | "structured" | "both";
+  judge?: string;
   listModels?: string | true;
   out: string;
 }
 
 function parseArgs(argv: string[]): CliArgs {
-  const args: CliArgs = { adapter: "openrouter", models: [], tasks: [], repair: true, out: join(evalsDir, "results") };
+  const args: CliArgs = {
+    adapter: "openrouter",
+    models: [],
+    tasks: [],
+    repair: true,
+    mode: "direct",
+    out: join(evalsDir, "results"),
+  };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]!;
     switch (arg) {
@@ -173,6 +271,12 @@ function parseArgs(argv: string[]): CliArgs {
         break;
       case "--tasks":
         args.tasks = (argv[++i] ?? "").split(",").filter(Boolean);
+        break;
+      case "--mode":
+        args.mode = argv[++i] as CliArgs["mode"];
+        break;
+      case "--judge":
+        args.judge = argv[++i]!;
         break;
       case "--no-repair":
         args.repair = false;
@@ -200,7 +304,10 @@ async function main(): Promise<void> {
   }
 
   const tasks = getTasks(args.tasks);
+  const modes: EvalMode[] = args.mode === "both" ? ["direct", "structured"] : [args.mode];
   let adapters: ModelAdapter[];
+  let judge: ModelAdapter | undefined;
+
   if (args.adapter === "mock") {
     adapters = [mockAdapter("perfect"), mockAdapter("sloppy")];
   } else {
@@ -216,9 +323,10 @@ async function main(): Promise<void> {
       args.models = defaults.models;
     }
     adapters = args.models.map((m) => new OpenRouterAdapter(m, apiKey));
+    if (args.judge) judge = new OpenRouterAdapter(args.judge, apiKey, { temperature: 0 });
   }
 
-  const run = await runEvals(adapters, tasks, { repair: args.repair, log: console.log });
+  const run = await runEvals(adapters, tasks, { repair: args.repair, modes, judge, log: console.log });
 
   mkdirSync(args.out, { recursive: true });
   const stamp = run.startedAt.replace(/[:.]/g, "-");

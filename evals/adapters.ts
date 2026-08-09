@@ -14,6 +14,11 @@ export interface GenerateResult {
 export interface GenerateMeta {
   /** Task id, for mock adapters; real adapters ignore it. */
   taskId?: string;
+  /**
+   * Provider response_format payload (e.g. json_schema strict mode) for the
+   * structured-generation arm. Adapters that cannot honor it should throw.
+   */
+  responseFormat?: unknown;
 }
 
 export interface ModelAdapter {
@@ -30,7 +35,7 @@ export class OpenRouterAdapter implements ModelAdapter {
     private readonly options: { temperature?: number; maxRetries?: number } = {},
   ) {}
 
-  async generate(messages: ChatMessage[]): Promise<GenerateResult> {
+  async generate(messages: ChatMessage[], meta?: GenerateMeta): Promise<GenerateResult> {
     const maxRetries = this.options.maxRetries ?? 2;
     let lastError: unknown;
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -50,6 +55,7 @@ export class OpenRouterAdapter implements ModelAdapter {
             model: this.id,
             messages,
             temperature: this.options.temperature ?? 0.2,
+            ...(meta?.responseFormat ? { response_format: meta.responseFormat } : {}),
           }),
           signal: AbortSignal.timeout(180_000),
         });
@@ -115,33 +121,52 @@ function perfectDocument(task: EvalTask): string {
     );
   }
   // One chart holding all series, or one chart per series for multi-chart tasks.
+  return `# Report\n\nHere is the requested report.\n\n${buildChartSpecs(task)
+    .map((spec) => "```chart\n" + JSON.stringify(spec, null, 2) + "\n```")
+    .join("\n\n")}\n\nEnd of report.\n`;
+}
+
+/** Correct chart specs derived from a chart task's expectation. */
+function buildChartSpecs(task: EvalTask): Record<string, unknown>[] {
+  const exp = task.expected;
+  // One chart holding all series, or one chart per series for multi-chart tasks.
   const seriesGroups =
     (exp.minCharts ?? 1) > 1 ? exp.series!.map((s) => [s]) : [exp.series!];
-  const chartsMd = seriesGroups
-    .map((group, g) => {
-      const xValues =
-        seriesGroups.length === 1 && exp.xValues && exp.xValues.length > 0
-          ? exp.xValues
-          : group[0]!.values.map((_, j) => `item-${g}-${j}`);
-      const spec = {
-        version: 1,
-        type: exp.chartTypes?.[0] ?? "line",
-        title: `Chart ${g + 1}`,
-        summary: `Values range across ${group[0]!.values.length} points.`,
-        x: { field: "x", ...(exp.temporal ? { type: "temporal" as const } : {}) },
-        series: group.map((_, i) => ({ field: `y${i}` })),
-        data: xValues.map((x, row) => {
-          const rowObj: Record<string, unknown> = { x };
-          group.forEach((s, i) => {
-            rowObj[`y${i}`] = s.values[row] ?? null;
-          });
-          return rowObj;
-        }),
-      };
-      return "```chart\n" + JSON.stringify(spec, null, 2) + "\n```";
-    })
-    .join("\n\n");
-  return `# Report\n\nHere is the requested report.\n\n${chartsMd}\n\nEnd of report.\n`;
+  return seriesGroups.map((group, g) => {
+    const xValues =
+      seriesGroups.length === 1 && exp.xValues && exp.xValues.length > 0
+        ? exp.xValues
+        : group[0]!.values.map((_, j) => `item-${g}-${j}`);
+    return {
+      version: 1,
+      type: exp.chartTypes?.[0] ?? "line",
+      title: `Chart ${g + 1}`,
+      summary: `Values range across ${group[0]!.values.length} points.`,
+      x: { field: "x", ...(exp.temporal ? { type: "temporal" as const } : {}) },
+      series: group.map((_, i) => ({ field: `y${i}` })),
+      data: xValues.map((x, row) => {
+        const rowObj: Record<string, unknown> = { x };
+        group.forEach((s, i) => {
+          rowObj[`y${i}`] = s.values[row] ?? null;
+        });
+        return rowObj;
+      }),
+    };
+  });
+}
+
+/** A structured-arm response built from the same expectation. */
+function structuredReport(task: EvalTask): string {
+  const charts = buildChartSpecs(task).map((spec) => ({
+    version: spec.version,
+    type: spec.type,
+    title: spec.title,
+    summary: spec.summary,
+    x: { label: null, type: null, ...(spec.x as object) },
+    series: (spec.series as { field: string }[]).map((s) => ({ label: null, ...s })),
+    data: spec.data,
+  }));
+  return JSON.stringify({ intro: "Here is the requested report.", charts, outro: null });
 }
 
 export function mockAdapter(kind: "perfect" | "sloppy"): ModelAdapter {
@@ -154,6 +179,29 @@ export function mockAdapter(kind: "perfect" | "sloppy"): ModelAdapter {
       const isRepair = messages.some(
         (m) => m.role === "user" && m.content.includes("failed validation"),
       );
+      if (meta?.responseFormat) {
+        if (kind === "sloppy" && !isRepair) {
+          // Schema-shaped but semantically broken: series field absent from data.
+          return {
+            text: JSON.stringify({
+              intro: "Report.",
+              charts: [
+                {
+                  version: 1,
+                  type: "line",
+                  title: null,
+                  summary: "s",
+                  x: { field: "x", label: null, type: null },
+                  series: [{ field: "wrong", label: null }],
+                  data: [{ x: "a", y0: 1 }],
+                },
+              ],
+              outro: null,
+            }),
+          };
+        }
+        return { text: structuredReport(task) };
+      }
       if (kind === "sloppy" && !isRepair && task.expected.blockType === "chart") {
         // Well-formed Markdown, broken chart payload (trailing comma).
         return {
