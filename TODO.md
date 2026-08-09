@@ -22,14 +22,12 @@
 
 ## 🚧 In Progress
 
-- [ ] App-level color overrides (consumer API, never model-facing; baked into SVG)
-  - [ ] built + tested + verified live — PR #3 open, awaiting merge
-- [ ] Built-in palette variations (default / okabe-ito / muted / monochrome, per-theme, gallery dimension)
-  - [ ] built + tested — PR #3 open, awaiting merge
-- [ ] Proper hover tooltips in the mount layer (automatic from chart data; per-mark only)
-  - [ ] built + tested + verified live in playground — PR #3 open, awaiting merge
-
 ## ✅ Done
+
+- [x] App-level color overrides (consumer API, never model-facing; baked into SVG) — PR #3, shipped in v0.1.1
+- [x] Built-in palette variations (default / okabe-ito / muted / monochrome, per-theme, gallery dimension) — PR #3, shipped in v0.1.1
+- [x] Proper hover tooltips in the mount layer (automatic from chart data; per-mark only) — PR #3, shipped in v0.1.1
+- [x] v0.1.1 release: gated (typecheck + 103 tests + pack smoke of the new API), tarball attached and verified
 
 - [x] v0.1.0 GitHub release with packed tarball — unblocks Bun installs (Bun runs git-dep prepare without devDeps, so build-at-install fails there; the tarball ships prebuilt dist with no lifecycle scripts)
 
