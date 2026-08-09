@@ -12,6 +12,24 @@ export function compileToECharts(spec: ChartSpec): Record<string, unknown> {
   const temporal = spec.x.type === "temporal";
   const xLabel = spec.x.label ?? spec.x.field;
 
+  if (spec.type === "pie") {
+    const field = spec.series[0]!.field;
+    return {
+      aria: { enabled: true, ...(spec.summary ? { label: { description: spec.summary } } : {}) },
+      ...(spec.title ? { title: { text: spec.title } } : {}),
+      tooltip: { trigger: "item" },
+      legend: {},
+      series: [
+        {
+          type: "pie",
+          radius: ["45%", "70%"],
+          data: spec.data.map((row) => ({ name: String(row[spec.x.field]), value: row[field] })),
+        },
+      ],
+    };
+  }
+
+  const markType = spec.type === "area" ? "line" : spec.type;
   const option: Record<string, unknown> = {
     aria: {
       enabled: true,
@@ -24,7 +42,9 @@ export function compileToECharts(spec: ChartSpec): Record<string, unknown> {
     yAxis: { type: "value" },
     series: spec.series.map((s) => ({
       name: s.label ?? s.field,
-      type: spec.type,
+      type: markType,
+      ...(spec.type === "area" ? { areaStyle: {} } : {}),
+      ...(spec.stack ? { stack: "total" } : {}),
       // null y values render as gaps, not zero (SPEC.md §2.2).
       connectNulls: false,
       data: temporal

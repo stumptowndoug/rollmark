@@ -1,6 +1,5 @@
-import * as echarts from "echarts";
 import mermaid from "mermaid";
-import { compileToECharts, renderMermaidFallback, renderRollmark } from "rollmark";
+import { renderChartSVG, renderMermaidFallback, renderRollmark } from "rollmark";
 
 export const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -22,13 +21,13 @@ export interface MountedDocument {
 
 /**
  * Render a Rollmark document into a container: HTML via the package (raw
- * HTML escaped), then ECharts and Mermaid mounted into the placeholders.
+ * HTML escaped), charts via Rollmark's own SVG renderer, diagrams via
+ * Mermaid mounted into the placeholders.
  */
 export async function renderDocumentInto(
   container: HTMLElement,
   source: string,
 ): Promise<MountedDocument> {
-  const charts: echarts.ECharts[] = [];
   const { html, blocks } = renderRollmark(source);
   container.innerHTML = html;
 
@@ -37,9 +36,9 @@ export async function renderDocumentInto(
     if (!el) continue;
 
     if (block.type === "chart" && block.spec) {
-      const chart = echarts.init(el, darkQuery.matches ? "dark" : undefined);
-      chart.setOption(compileToECharts(block.spec));
-      charts.push(chart);
+      el.innerHTML = renderChartSVG(block.spec, {
+        theme: darkQuery.matches ? "dark" : "light",
+      });
     } else if (block.type === "mermaid") {
       const renderId = `rollmark-mmd-${mermaidCounter++}`;
       try {
@@ -56,11 +55,9 @@ export async function renderDocumentInto(
 
   return {
     dispose() {
-      for (const chart of charts) chart.dispose();
       container.innerHTML = "";
     },
-    resize() {
-      for (const chart of charts) chart.resize();
-    },
+    // SVG charts scale via viewBox; nothing to do on resize.
+    resize() {},
   };
 }

@@ -5,8 +5,8 @@ import type { RenderRule } from "markdown-it/lib/renderer.mjs";
 import type Token from "markdown-it/lib/token.mjs";
 
 import { renderChartFallback } from "./fallback.js";
+import { validateChartPayload } from "./parse-dsl.js";
 import type { RollmarkBlock } from "./types.js";
-import { validateChart } from "./validate.js";
 
 export interface RollmarkEnvState {
   blocks: RollmarkBlock[];
@@ -66,7 +66,7 @@ export function rollmarkPlugin(md: MarkdownIt): void {
       return placeholder("mermaid", id);
     }
 
-    const result = validateChart(source);
+    const result = validateChartPayload(source);
     if (result.ok) {
       state.blocks.push({ id, type: "chart", source, spec: result.spec, warnings: result.warnings });
       return placeholder("chart", id);

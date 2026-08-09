@@ -2,8 +2,6 @@
 
 ## 📋 Backlog
 
-- [ ] Decide v1 canonical payload syntax (json vs dsl) based on `evals/FINDINGS.md` §Payload syntax A/B — Doug's call
-
 - [ ] Phase 2: Springroll integration behind thin API (`<Rollmark content={...} />`)
 - [ ] Phase 2: streaming-aware rendering (skeleton while fence open, upgrade on close)
 - [ ] Phase 2: static export adapter (SVG/PNG) for PDF and email
@@ -19,6 +17,13 @@
 - [ ] Phase 3: llms.txt-style machine-readable docs
 
 ## 🚧 In Progress
+
+- [ ] DSL becomes canonical chart syntax (decided by Doug; JSON accepted as alternate)
+  - [ ] promote parser to src/ with revised grammar: bare type line, quoting, coercion rules, temporal inference
+- [ ] Extend ChartSpec: area, scatter, pie + stack option
+- [ ] Rollmark-owned SVG renderer (d3 micro-modules for math; static SVG, no interactivity in v1)
+- [ ] Rewrite SPEC.md §2, prompt kit, examples for the new syntax
+- [ ] Eval-gate new chart types (pie/scatter/stacked tasks) across the model spread
 
 ## ✅ Done
 

@@ -52,7 +52,7 @@ describe("dsl format", () => {
   });
 
   it("routes semantic problems through the shared validator", () => {
-    const result = dsl.validate("type: pie\nsummary: s\n\nk | v\na | 1\n");
+    const result = dsl.validate("type: sankey\nsummary: s\n\nk | v\na | 1\n");
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.errors.map((e) => e.code)).toContain("unsupported-type");
   });

@@ -11,6 +11,7 @@
 
 import { parse as parseYaml } from "yaml";
 
+import { parseChartDsl } from "../src/parse-dsl.js";
 import { validateChart, validateChartValue } from "../src/validate.js";
 import type { ChartValidationResult } from "../src/types.js";
 
@@ -40,75 +41,6 @@ function coerceCell(text: string): number | string | null {
   const grouped = /^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(text) ? text.replace(/,/g, "") : text;
   if (/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(grouped)) return Number(grouped);
   return text;
-}
-
-// ---------------------------------------------------------------------------
-// dsl: front-matter + pipe table
-// ---------------------------------------------------------------------------
-
-const DSL_META_KEYS = new Set(["type", "title", "summary", "x-type", "x-label"]);
-
-function parseDsl(source: string): ChartValidationResult {
-  const meta: Record<string, string> = {};
-  const tableLines: string[] = [];
-  for (const raw of source.split("\n")) {
-    const line = raw.trim();
-    if (line === "") continue;
-    if (line.includes("|")) {
-      // Skip GFM separator rows like | --- | --- |
-      if (!/^[\s|:\-]+$/.test(line)) tableLines.push(line);
-      continue;
-    }
-    const m = line.match(/^([A-Za-z][\w-]*)\s*:\s*(.*)$/);
-    if (m) {
-      const key = m[1]!.toLowerCase();
-      if (DSL_META_KEYS.has(key)) meta[key] = m[2]!.trim();
-      // Unknown meta keys are ignored, mirroring SPEC.md's unknown-property rule.
-      continue;
-    }
-    return parseError(`unrecognized line outside the table: "${line.slice(0, 60)}"`);
-  }
-  if (tableLines.length < 2) {
-    return parseError("expected a data table: a header row plus at least one data row");
-  }
-
-  const headerRaw = tableLines[0]!;
-  const leading = headerRaw.startsWith("|");
-  const trailing = headerRaw.endsWith("|");
-  const splitRow = (line: string): string[] => {
-    let cells = line.split("|").map((c) => c.trim());
-    if (leading && cells[0] === "") cells = cells.slice(1);
-    if (trailing && cells[cells.length - 1] === "") cells = cells.slice(0, -1);
-    return cells;
-  };
-
-  const header = splitRow(headerRaw);
-  if (header.length < 2) {
-    return parseError("the table needs at least two columns: an x column and one series column");
-  }
-  const data = tableLines.slice(1).map((line) => {
-    const cells = splitRow(line);
-    const row: Record<string, unknown> = {};
-    header.forEach((name, i) => {
-      const cell = cells[i] ?? "";
-      row[name] = i === 0 ? (coerceCell(cell) ?? cell) : coerceCell(cell);
-    });
-    return row;
-  });
-
-  return validateChartValue({
-    version: 1,
-    ...(meta.type !== undefined ? { type: meta.type } : {}),
-    ...(meta.title !== undefined ? { title: meta.title } : {}),
-    ...(meta.summary !== undefined ? { summary: meta.summary } : {}),
-    x: {
-      field: header[0]!,
-      ...(meta["x-label"] !== undefined ? { label: meta["x-label"] } : {}),
-      ...(meta["x-type"] === "temporal" ? { type: "temporal" } : {}),
-    },
-    series: header.slice(1).map((field) => ({ field })),
-    data,
-  });
 }
 
 // ---------------------------------------------------------------------------
@@ -221,14 +153,13 @@ ${SHARED_RULES}`,
   },
   dsl: {
     id: "dsl",
-    validate: parseDsl,
-    promptSection: `The payload is a few \`key: value\` lines followed by a pipe-separated data table:
+    validate: parseChartDsl,
+    promptSection: `The payload starts with the chart type on its own line, then optional \`key: value\` lines, then a pipe-separated data table:
 
 \`\`\`chart
-type: line
+line
 title: Daily visitors
 summary: Daily visitors grew from 1,240 to 1,510 over three days.
-x-type: temporal
 
 date | visitors
 2026-08-01 | 1240
@@ -237,10 +168,11 @@ date | visitors
 \`\`\`
 
 Format rules:
+- The first line is the chart type: line, bar, area, scatter, or pie. Add \`stack: true\` for stacked bars or areas.
 - The first table column is the x-axis; every additional column is a series (1–8). Column headers are the labels.
 - Each data row is ONE x-axis entry — one date or one category. For category comparisons the categories go down the first column, one per row (e.g. \`channel | visitors\` with a row per channel) — never across the header.
-- Include \`x-type: temporal\` only when x values are ISO 8601 dates (like 2026-08-01); omit it for categories.
-- Series cells are numbers; leave a cell empty for a missing value.
+- Write dates as ISO 8601 (2026-08-01); the axis is treated as time automatically.
+- Series cells are numbers; leave a cell empty for a missing value. Pie charts take exactly one value column.
 ${SHARED_RULES}`,
   },
   yaml: {

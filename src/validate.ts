@@ -8,7 +8,10 @@ import type {
   ValidationIssue,
 } from "./types.js";
 
-const KNOWN_TOP_LEVEL = new Set(["version", "type", "title", "summary", "x", "series", "data"]);
+const KNOWN_TOP_LEVEL = new Set(["version", "type", "title", "summary", "stack", "x", "series", "data"]);
+
+const CHART_TYPES = new Set(["line", "bar", "area", "scatter", "pie"]);
+const STACKABLE_TYPES = new Set(["bar", "area"]);
 const KNOWN_AXIS = new Set(["field", "label", "type"]);
 const KNOWN_SERIES = new Set(["field", "label"]);
 
@@ -81,11 +84,27 @@ export function validateChartValue(payload: unknown): ChartValidationResult {
   // Rule 4: type.
   if (payload.type === undefined) {
     errors.push({ code: "missing-field", message: `required field "type" is missing` });
-  } else if (payload.type !== "line" && payload.type !== "bar") {
+  } else if (typeof payload.type !== "string" || !CHART_TYPES.has(payload.type)) {
     errors.push({
       code: "unsupported-type",
-      message: `unsupported chart type ${JSON.stringify(payload.type)}; version 1 supports "line" and "bar"`,
+      message: `unsupported chart type ${JSON.stringify(payload.type)}; version 1 supports ${[...CHART_TYPES].map((t) => `"${t}"`).join(", ")}`,
     });
+  }
+
+  if (payload.stack !== undefined) {
+    if (typeof payload.stack !== "boolean") {
+      errors.push({ code: "wrong-type", message: `"stack" must be true or false` });
+    } else if (
+      payload.stack &&
+      typeof payload.type === "string" &&
+      CHART_TYPES.has(payload.type) &&
+      !STACKABLE_TYPES.has(payload.type)
+    ) {
+      errors.push({
+        code: "stack-not-supported",
+        message: `"stack" applies only to bar and area charts, not "${payload.type}"`,
+      });
+    }
   }
 
   if (payload.title !== undefined) {
@@ -116,7 +135,11 @@ export function validateChartValue(payload: unknown): ChartValidationResult {
 
   if (x && series && data) {
     validateFieldPresence(x, series, data, errors);
+    inferTemporalAxis(x, data);
     validateValueTypes(x, series, data, errors);
+    if (typeof payload.type === "string") {
+      validatePerType(payload.type, x, series, data, errors);
+    }
   }
 
   if (errors.length > 0) {
@@ -125,15 +148,70 @@ export function validateChartValue(payload: unknown): ChartValidationResult {
 
   const spec: ChartSpec = {
     version: 1,
-    type: payload.type as "line" | "bar",
+    type: payload.type as ChartSpec["type"],
     x: x as ChartAxis,
     series: series as ChartSeries[],
     data: data as Record<string, unknown>[],
   };
   if (partial.title !== undefined) spec.title = partial.title;
   if (partial.summary !== undefined) spec.summary = partial.summary;
+  if (payload.stack === true) spec.stack = true;
 
   return { ok: true, spec, warnings };
+}
+
+/**
+ * When x.type is not declared and every x value is an ISO 8601 date string,
+ * treat the axis as temporal. Declared types are never overridden.
+ */
+function inferTemporalAxis(x: ChartAxis, data: Record<string, unknown>[]): void {
+  if (x.type !== undefined) return;
+  const values = data.map((row) => row[x.field]).filter((v) => v !== undefined && v !== null);
+  if (
+    values.length > 0 &&
+    values.every((v) => typeof v === "string" && ISO_8601.test(v) && !Number.isNaN(Date.parse(v)))
+  ) {
+    x.type = "temporal";
+  }
+}
+
+/** Type-specific rules: pie shape and scatter axis requirements. */
+function validatePerType(
+  type: string,
+  x: ChartAxis,
+  series: ChartSeries[],
+  data: Record<string, unknown>[],
+  errors: ValidationIssue[],
+): void {
+  if (type === "pie") {
+    if (series.length !== 1) {
+      errors.push({
+        code: "pie-series",
+        message: `pie charts take exactly one series; found ${series.length}`,
+      });
+      return;
+    }
+    const field = series[0]!.field;
+    for (const [index, row] of data.entries()) {
+      const v = row[field];
+      if (typeof v !== "number" || v < 0) {
+        errors.push({
+          code: "invalid-pie-value",
+          message: `"data[${index}].${field}" must be a non-negative number for a pie chart`,
+        });
+        return;
+      }
+    }
+  }
+  if (type === "scatter" && x.type !== "temporal") {
+    const values = data.map((row) => row[x.field]).filter((v) => v !== undefined && v !== null);
+    if (!values.every((v) => typeof v === "number")) {
+      errors.push({
+        code: "invalid-scatter-x",
+        message: "scatter charts need numeric or ISO 8601 date x values, not categories",
+      });
+    }
+  }
 }
 
 function validateAxis(

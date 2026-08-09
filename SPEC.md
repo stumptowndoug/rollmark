@@ -12,7 +12,7 @@ Springroll is the first intended consumer, but nothing in this specification is 
 2. **Models set data, chart type, labels, and intent. The renderer sets everything visual** — colors, typography, axes, spacing, animation, theme, and accessibility defaults. This is a spec principle, not an implementation preference: it is the criterion for rejecting schema additions.
 3. **The persisted format is independent of any rendering library.** A `chart` block describes a visualization semantically; which engine draws it is a renderer implementation detail.
 4. **Failure is graceful and local.** A malformed block degrades to readable fallback content. It never breaks the surrounding document.
-5. **The format is designed to be generated.** The chart schema is deliberately small, published as JSON Schema, and accompanied by a prompt kit. Reliability of model generation is measured, not assumed.
+5. **The format is designed to be generated.** The chart language is deliberately small, Markdown-native, and accompanied by a prompt kit; the equivalent JSON shape is published as JSON Schema for structured-output pipelines. Reliability of model generation is measured, not assumed.
 
 ## Conformance language
 
@@ -46,7 +46,7 @@ A **visual block** is a fenced code block whose info string's first word is a re
 
 | Block name | Payload | Purpose |
 |---|---|---|
-| `chart` | JSON (§2) | Quantitative visualization |
+| `chart` | Chart DSL or JSON (§2) | Quantitative visualization |
 | `mermaid` | Mermaid source (§3) | Diagrams, relationships, flows, schedules |
 
 Rules:
@@ -61,61 +61,73 @@ The following block names are **reserved** for future versions and MUST NOT be g
 
 ## 2. The `chart` block
 
-### 2.1 Payload
+### 2.1 Canonical payload: the chart DSL
 
-The payload is a single JSON object, encoded in UTF-8. Version 1 accepts JSON only (not YAML). Example:
+The canonical payload is a small text DSL: the chart type on the first line, optional `key: value` meta lines, then a pipe-separated data table.
 
 ````markdown
 ```chart
-{
-  "version": 1,
-  "type": "line",
-  "title": "Daily visitors",
-  "summary": "Daily visitors grew steadily from 1,240 to 1,510 over three days.",
-  "x": { "field": "date", "label": "Date", "type": "temporal" },
-  "series": [
-    { "field": "visitors", "label": "Visitors" }
-  ],
-  "data": [
-    { "date": "2026-08-01", "visitors": 1240 },
-    { "date": "2026-08-02", "visitors": 1380 },
-    { "date": "2026-08-03", "visitors": 1510 }
-  ]
-}
+line
+title: Daily visitors
+summary: Daily visitors grew steadily from 1,240 to 1,510 over three days.
+
+date | Visitors
+2026-08-01 | 1240
+2026-08-02 | 1380
+2026-08-03 | 1510
 ```
 ````
 
-### 2.2 Fields
+Grammar:
+
+- **Type line.** The first bare word line is the chart type: `line`, `bar`, `area`, `scatter`, or `pie`. `type: <name>` is accepted as an alternate.
+- **Meta lines** are `key: value`. Defined keys: `title` (max 200 chars), `summary` (max 500 chars, see §2.5), `stack` (`true`/`false`), `x-type` (`temporal`/`category`, overriding inference), `x-label`. Unknown keys MUST be ignored (the unknown-property rule).
+- **The data table** is pipe-separated: a header row, then 1–1,000 data rows. The first column is the x-axis; each additional column is one series (1–8 total). Column headers are the field names and default labels. GFM-style outer pipes and `|---|` separator rows MUST be tolerated.
+- **Cells.** An empty cell (or the literal `null`) is a gap. An unquoted cell that is numeric — including valid thousands groupings such as `12,480` — is a number. A double-quoted cell is always a string and may contain pipes (`"a|b"`, `"007"`). Anything else is a string.
+- **Temporal inference.** When `x-type` is not declared and every x value is an ISO 8601 date or date-time string, the axis is temporal. Declared types are never overridden.
+- **Orientation.** Each data row is one x-axis entry — one date or one category. Categories go down the first column, never across the header. (Producers MUST be prompted with this rule; transposition is the empirically dominant failure mode of row-oriented syntaxes.)
+
+### 2.2 Alternate payload: JSON
+
+A payload whose first non-whitespace character is `{` is parsed as a JSON object with this shape (the DSL desugars to exactly this):
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `version` | integer | yes | Schema version. MUST be `1` for this specification. |
-| `type` | string | yes | Chart type. Version 1 defines `"line"` and `"bar"`. |
+| `version` | integer | yes | Schema version. MUST be `1`. |
+| `type` | string | yes | `"line"`, `"bar"`, `"area"`, `"scatter"`, or `"pie"`. |
 | `title` | string | no | Chart title. Max 200 characters. |
-| `summary` | string | no (strongly encouraged) | One- or two-sentence natural-language description of what the chart shows. Max 500 characters. See §2.5. |
-| `x` | object | yes | The x-axis encoding. |
-| `x.field` | string | yes | Name of the data field providing x values. |
-| `x.label` | string | no | Axis label. Defaults to `x.field`. |
-| `x.type` | string | no | `"category"` (default) or `"temporal"`. Temporal x values MUST be ISO 8601 date or date-time strings. |
-| `series` | array of objects | yes | 1–8 entries. Each series is one line or bar group. |
-| `series[].field` | string | yes | Name of the data field providing y values. Fields MUST be unique across series. |
-| `series[].label` | string | no | Series label shown in the legend. Defaults to the field name. |
-| `data` | array of objects | yes | 1–1,000 rows of inline data. |
+| `summary` | string | no (strongly encouraged) | See §2.5. Max 500 characters. |
+| `stack` | boolean | no | Stack series; `bar` and `area` only. |
+| `x` | object | yes | `{ field, label?, type? }`; `type` is `"category"` or `"temporal"`, inferred from ISO dates when omitted. |
+| `series` | array | yes | 1–8 `{ field, label? }` entries; fields MUST be unique. |
+| `data` | array of objects | yes | 1–1,000 flat rows keyed by `x.field` and the series fields. |
 
-Data rows are flat JSON objects. Values referenced by `x.field` MUST be strings or numbers. Values referenced by `series[].field` MUST be numbers or `null` (`null` renders as a gap, not zero). Rows MAY contain additional fields; renderers ignore them.
+Values referenced by `x.field` MUST be strings or numbers. Values referenced by `series[].field` MUST be numbers or `null` (`null` renders as a gap, not zero). Rows MAY contain additional fields; renderers ignore them.
 
-### 2.3 Validation
+The DSL is the canonical, documented, model-facing syntax; JSON acceptance exists for machine producers (serializers, structured-output pipelines). Renderers MUST accept both. Producers SHOULD emit the DSL.
+
+### 2.3 Chart types and validation
+
+Type semantics:
+
+- `line` — trends over an ordered axis.
+- `bar` — category comparisons; grouped by default, stacked with `stack: true`.
+- `area` — magnitude over an ordered axis; stacked with `stack: true`.
+- `scatter` — relationship between two measures. X values MUST be numbers, or ISO 8601 dates (temporal).
+- `pie` — shares of a whole. Exactly one series; values MUST be non-negative numbers. Renderers MAY cap slices and bucket the tail into "Other".
 
 A renderer MUST validate the payload before rendering. A payload is invalid if any of the following hold:
 
-1. The payload is not well-formed JSON, or is not a JSON object.
+1. The payload does not parse (malformed DSL or JSON), or is not a single chart.
 2. A required field is missing or has the wrong type.
-3. `version` is not a version the renderer supports.
+3. `version` is not a version the renderer supports (DSL payloads are implicitly version 1).
 4. `type` is not a type the renderer supports.
-5. `series` is empty or has more than 8 entries, or contains duplicate `field` values.
+5. `series` is empty or has more than 8 entries, or contains duplicate fields.
 6. `data` is empty or has more than 1,000 rows.
-7. `x.field` or any `series[].field` is absent from **every** row of `data`.
-8. `x.type` is `"temporal"` and any x value is not a parseable ISO 8601 string.
+7. The x field or any series field is absent from **every** row of `data`.
+8. The x axis is temporal (declared or inferred) and any x value is not a parseable ISO 8601 string.
+9. `stack` is true on a type other than `bar` or `area`.
+10. A type-specific rule in the list above is violated (pie shape, scatter x values).
 
 An invalid payload MUST trigger the fallback behavior in §4; it MUST NOT be partially rendered.
 
@@ -230,7 +242,7 @@ The same source document may be rendered differently per destination. Expected b
 
 The specification is not complete without machine-facing artifacts, since the primary producers are models:
 
-- **JSON Schema** for the `chart` payload — the single source of truth used by validators, structured-output APIs, and documentation. (`schemas/chart.v1.json`, planned)
+- **JSON Schema** for the JSON payload shape (§2.2) — used by structured-output APIs and third-party validators. (`schemas/chart.v1.json`)
 - **Prompt kit** — a system-prompt snippet describing the format and when to use each block, plus few-shot examples. (`prompt-kit/`, planned)
 - **Evaluation suite** — measures, per model: Markdown validity, fence formation, JSON/schema validity, data fidelity, chart-type appropriateness, label quality, summary-vs-data consistency, first-pass success, repair success, and render success. (`packages/evals/`, planned)
 
@@ -244,19 +256,14 @@ The specification is not complete without machine-facing artifacts, since the pr
 Traffic increased **14%** this week, driven primarily by organic search.
 
 ```chart
-{
-  "version": 1,
-  "type": "line",
-  "title": "Daily visitors",
-  "summary": "Daily visitors grew steadily from 1,240 on August 1 to 1,510 on August 3.",
-  "x": { "field": "date", "label": "Date", "type": "temporal" },
-  "series": [{ "field": "visitors", "label": "Visitors" }],
-  "data": [
-    { "date": "2026-08-01", "visitors": 1240 },
-    { "date": "2026-08-02", "visitors": 1380 },
-    { "date": "2026-08-03", "visitors": 1510 }
-  ]
-}
+line
+title: Daily visitors
+summary: Daily visitors grew steadily from 1,240 on August 1 to 1,510 on August 3.
+
+date | Visitors
+2026-08-01 | 1240
+2026-08-02 | 1380
+2026-08-03 | 1510
 ```
 
 The acquisition flow for new visitors:
@@ -271,4 +278,10 @@ flowchart LR
 Next week we will monitor whether the trend holds through the weekend.
 ````
 
-A Rollmark renderer shows a line chart and a flowchart between the paragraphs. GitHub shows the same document with two readable code blocks. An email export replaces the chart with its summary sentence.
+A Rollmark renderer shows a line chart and a flowchart between the paragraphs. GitHub shows the same document with two readable code blocks — the chart block reads as a labeled table. An email export replaces the chart with its summary sentence.
+
+## Appendix B: Reference renderer
+
+Rollmark ships its own SVG renderer (`renderChartSVG`): ChartSpec in, static, theme-aware, accessible SVG out. d3 micro-modules (`d3-scale`, `d3-shape`, `d3-array`, `d3-format`, `d3-time-format`) provide the math; Rollmark owns every visual opinion — layout, palette, typography, axes, legends, the donut form for `pie`, tail bucketing, and gap handling. It is DOM-free and runs identically in the browser and on the server, so static export (§8) is the same code path. v1 output is non-interactive by design; native `<title>` elements provide hover text.
+
+The renderer is replaceable per design goal 3 — `ChartSpec` remains the boundary, and alternative compilers (e.g. to ECharts option objects) are conforming.

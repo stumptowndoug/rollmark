@@ -140,7 +140,8 @@
       #doc pre { background: var(--code-bg); padding: 0.75rem; border-radius: 6px; overflow-x: auto; font-size: 0.8rem; }
       #doc table { border-collapse: collapse; }
       #doc td, #doc th { border: 1px solid var(--border); padding: 0.3rem 0.6rem; }
-      .rollmark-block[data-rollmark-block="chart"] { height: 300px; margin: 1rem 0; }
+      .rollmark-block[data-rollmark-block="chart"] { margin: 1rem 0; max-width: 720px; }
+      .rollmark-block[data-rollmark-block="chart"] svg { width: 100%; height: auto; display: block; }
       .rollmark-block[data-rollmark-block="mermaid"] { margin: 1rem 0; }
       .rollmark-fallback {
         border: 1px solid var(--fallback-border);

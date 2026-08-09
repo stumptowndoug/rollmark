@@ -59,7 +59,46 @@ describe("validateChart", () => {
   });
 
   it("rejects unsupported chart types (rule 4)", () => {
-    expect(errorCodes(spec({ type: "pie" }))).toContain("unsupported-type");
+    expect(errorCodes(spec({ type: "sankey" }))).toContain("unsupported-type");
+  });
+
+  it("restricts stack to bar and area charts", () => {
+    expect(errorCodes(spec({ type: "line", stack: true }))).toContain("stack-not-supported");
+    const ok = validateChart(spec({ type: "bar", stack: true, x: { field: "date" } }));
+    expect(ok.ok).toBe(true);
+    if (ok.ok) expect(ok.spec.stack).toBe(true);
+  });
+
+  it("infers a temporal axis from ISO x values when undeclared", () => {
+    const result = validateChart(spec({ x: { field: "date" } }));
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.spec.x.type).toBe("temporal");
+    const category = validateChart(spec({ x: { field: "date", type: "category" } }));
+    if (category.ok) expect(category.spec.x.type).toBe("category");
+  });
+
+  it("validates pie charts: one non-negative series", () => {
+    const pie = (data: unknown, series = [{ field: "share" }]) =>
+      JSON.stringify({ version: 1, type: "pie", summary: "s", x: { field: "plan" }, series, data });
+    expect(errorCodes(pie([{ plan: "Free", share: 9120 }]))).toEqual([]);
+    expect(
+      errorCodes(pie([{ plan: "Free", share: 1, extra: 2 }], [{ field: "share" }, { field: "extra" }])),
+    ).toContain("pie-series");
+    expect(errorCodes(pie([{ plan: "Free", share: -5 }]))).toContain("invalid-pie-value");
+  });
+
+  it("validates scatter x values as numeric or temporal", () => {
+    const scatter = (rows: unknown[]) =>
+      JSON.stringify({
+        version: 1,
+        type: "scatter",
+        summary: "s",
+        x: { field: "price" },
+        series: [{ field: "rating" }],
+        data: rows,
+      });
+    expect(errorCodes(scatter([{ price: 10, rating: 4.2 }]))).toEqual([]);
+    expect(errorCodes(scatter([{ price: "cheap", rating: 4.2 }]))).toContain("invalid-scatter-x");
   });
 
   it("enforces series count and uniqueness (rule 5)", () => {

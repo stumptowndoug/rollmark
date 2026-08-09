@@ -11,12 +11,16 @@ export interface ChartSeries {
   label?: string;
 }
 
+export type ChartType = "line" | "bar" | "area" | "scatter" | "pie";
+
 /** A validated Rollmark `chart` payload, version 1 (SPEC.md §2). */
 export interface ChartSpec {
   version: 1;
-  type: "line" | "bar";
+  type: ChartType;
   title?: string;
   summary?: string;
+  /** Stack series on top of each other; bar and area only. */
+  stack?: boolean;
   x: ChartAxis;
   series: ChartSeries[];
   data: Record<string, unknown>[];

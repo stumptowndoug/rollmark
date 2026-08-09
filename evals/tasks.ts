@@ -9,11 +9,13 @@ export interface ExpectedSeries {
   values: (number | null)[];
 }
 
+import type { ChartType } from "../src/types.js";
+
 export interface EvalExpectation {
   /** What kind of visual block the task calls for. */
   blockType: "chart" | "mermaid" | "none";
   /** Acceptable chart types, when blockType is "chart". */
-  chartTypes?: ("line" | "bar")[];
+  chartTypes?: ChartType[];
   /** Whether the x axis is temporal (dates normalized before comparison). */
   temporal?: boolean;
   /** Normalized x values in order (ISO dates when temporal; category labels otherwise). */

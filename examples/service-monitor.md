@@ -3,42 +3,33 @@
 All services are healthy this morning. One latency spike on the API gateway at 02:00 resolved itself within ten minutes; no pages fired.
 
 ```chart
-{
-  "version": 1,
-  "type": "line",
-  "title": "API gateway p95 latency (ms)",
-  "summary": "p95 latency held near 180 ms overnight except for a spike to 640 ms at 02:00, which recovered by 02:10.",
-  "x": { "field": "time", "label": "Time", "type": "temporal" },
-  "series": [{ "field": "p95", "label": "p95 latency (ms)" }],
-  "data": [
-    { "time": "2026-08-08T00:00:00Z", "p95": 176 },
-    { "time": "2026-08-08T01:00:00Z", "p95": 181 },
-    { "time": "2026-08-08T02:00:00Z", "p95": 640 },
-    { "time": "2026-08-08T03:00:00Z", "p95": 189 },
-    { "time": "2026-08-08T04:00:00Z", "p95": 174 },
-    { "time": "2026-08-08T05:00:00Z", "p95": 178 },
-    { "time": "2026-08-08T06:00:00Z", "p95": 183 }
-  ]
-}
+line
+title: API gateway p95 latency (ms)
+summary: p95 latency held near 180 ms overnight except for a spike to 640 ms at 02:00, which recovered by 03:00.
+
+time | p95 (ms)
+2026-08-08T00:00:00Z | 176
+2026-08-08T01:00:00Z | 181
+2026-08-08T02:00:00Z | 640
+2026-08-08T03:00:00Z | 189
+2026-08-08T04:00:00Z | 174
+2026-08-08T05:00:00Z | 178
+2026-08-08T06:00:00Z | 183
 ```
 
-## Error budget by service
+## Requests by service, stacked
 
 ```chart
-{
-  "version": 1,
-  "type": "bar",
-  "title": "Error budget consumed this month (%)",
-  "summary": "The API gateway has consumed 42% of its monthly error budget; all other services remain under 20%.",
-  "x": { "field": "service", "label": "Service" },
-  "series": [{ "field": "consumed", "label": "Budget consumed (%)" }],
-  "data": [
-    { "service": "API gateway", "consumed": 42 },
-    { "service": "Auth", "consumed": 11 },
-    { "service": "Jobs", "consumed": 18 },
-    { "service": "Storage", "consumed": 7 }
-  ]
-}
+bar
+stack: true
+title: Overnight requests by service (thousands)
+summary: The API gateway carried most overnight traffic; jobs traffic doubled at 03:00 during the nightly batch window.
+
+hour | API | Auth | Jobs
+00:00 | 91 | 22 | 8
+02:00 | 84 | 19 | 9
+04:00 | 78 | 17 | 21
+06:00 | 95 | 24 | 10
 ```
 
 ## Alert flow

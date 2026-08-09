@@ -1,5 +1,8 @@
 export { LIMITS } from "./limits.js";
 export { validateChart, validateChartValue } from "./validate.js";
+export { parseChartDsl, validateChartPayload } from "./parse-dsl.js";
+export { renderChartSVG } from "./render-svg.js";
+export type { RenderSvgOptions } from "./render-svg.js";
 export { rollmarkPlugin } from "./markdown-it-plugin.js";
 export type { RollmarkEnvState } from "./markdown-it-plugin.js";
 export { renderRollmark } from "./render.js";
@@ -12,6 +15,7 @@ export type {
   ChartPartial,
   ChartSeries,
   ChartSpec,
+  ChartType,
   ChartValidationResult,
   RollmarkBlock,
   ValidationIssue,

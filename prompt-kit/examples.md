@@ -2,7 +2,7 @@
 
 Input/output pairs for prompting or eval baselines. Each shows source data and the expected Rollmark output. Note in every example: exact data preservation, a `summary` consistent with the data, and no styling properties.
 
-## Example 1: Time series (temporal line chart)
+## Example 1: Time series (line chart, dates inferred as temporal)
 
 **Input data:**
 
@@ -23,21 +23,16 @@ Fri 2026-08-07: 4,730
 Active users grew **14.8%** across the week, ending at 4,730 on Friday.
 
 ```chart
-{
-  "version": 1,
-  "type": "line",
-  "title": "Daily active users",
-  "summary": "Daily active users rose from 4,120 on Monday to 4,730 on Friday, with a small dip on Wednesday.",
-  "x": { "field": "date", "label": "Date", "type": "temporal" },
-  "series": [{ "field": "users", "label": "Active users" }],
-  "data": [
-    { "date": "2026-08-03", "users": 4120 },
-    { "date": "2026-08-04", "users": 4340 },
-    { "date": "2026-08-05", "users": 4290 },
-    { "date": "2026-08-06", "users": 4510 },
-    { "date": "2026-08-07", "users": 4730 }
-  ]
-}
+line
+title: Daily active users
+summary: Daily active users rose from 4,120 on Monday to 4,730 on Friday, with a small dip on Wednesday.
+
+date | Active users
+2026-08-03 | 4120
+2026-08-04 | 4340
+2026-08-05 | 4290
+2026-08-06 | 4510
+2026-08-07 | 4730
 ```
 ````
 
@@ -60,26 +55,43 @@ API: 45 opened, 31 resolved
 The API area is falling behind: 45 tickets opened against 31 resolved.
 
 ```chart
-{
-  "version": 1,
-  "type": "bar",
-  "title": "Tickets opened vs. resolved by area",
-  "summary": "API had the most activity with 45 opened and 31 resolved; Billing and Onboarding stayed roughly balanced.",
-  "x": { "field": "area", "label": "Product area" },
-  "series": [
-    { "field": "opened", "label": "Opened" },
-    { "field": "resolved", "label": "Resolved" }
-  ],
-  "data": [
-    { "area": "Billing", "opened": 34, "resolved": 29 },
-    { "area": "Onboarding", "opened": 21, "resolved": 22 },
-    { "area": "API", "opened": 45, "resolved": 31 }
-  ]
-}
+bar
+title: Tickets opened vs. resolved by area
+summary: API had the most activity with 45 opened and 31 resolved; Billing and Onboarding stayed roughly balanced.
+
+area | Opened | Resolved
+Billing | 34 | 29
+Onboarding | 21 | 22
+API | 45 | 31
 ```
 ````
 
-## Example 3: Workflow (Mermaid, not a chart)
+Note the orientation: categories go **down** the first column, one per row.
+
+## Example 3: Shares of a whole (pie chart)
+
+**Input data:**
+
+```text
+Subscribers: Free 9,120; Pro 2,480; Team 640.
+```
+
+**Expected output:**
+
+````markdown
+```chart
+pie
+title: Subscribers by plan
+summary: Free accounts make up about three quarters of subscribers; Pro is one fifth and Team the remainder.
+
+plan | Subscribers
+Free | 9120
+Pro | 2480
+Team | 640
+```
+````
+
+## Example 4: Workflow (Mermaid, not a chart)
 
 **Input data:**
 
@@ -103,7 +115,7 @@ flowchart LR
 ```
 ````
 
-## Example 4: Small data — no visual block
+## Example 5: Small data — no visual block
 
 **Input data:**
 

@@ -29,9 +29,19 @@
     "viewer": "npm --prefix playground run dev -- --open /results.html"
   },
   "dependencies": {
+    "d3-array": "^3.2.4",
+    "d3-format": "^3.1.2",
+    "d3-scale": "^4.0.2",
+    "d3-shape": "^3.2.0",
+    "d3-time-format": "^4.1.0",
     "markdown-it": "^14.1.0"
   },
   "devDependencies": {
+    "@types/d3-array": "^3.2.2",
+    "@types/d3-format": "^3.0.4",
+    "@types/d3-scale": "^4.0.9",
+    "@types/d3-shape": "^3.1.8",
+    "@types/d3-time-format": "^4.0.3",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^22.0.0",
     "tsx": "^4.19.0",
