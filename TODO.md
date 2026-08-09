@@ -20,6 +20,10 @@
 
 ## ✅ Done
 
+- [x] Eval results viewer (`playground/results.html`) — verified in browser
+  - [x] run picker over `evals/results/*.json`; model × task chip matrix (✓/↻/⚠/✗)
+  - [x] cell detail: metric chips, judge verdicts, rendered document, attempt-1 vs after-repair tabs, raw source
+
 - [x] Eval: compare direct generation vs. structured output + serializer
   - [x] verdict: direct is near-ceiling and stays the default; structured helps weak models with syntax but degrades summary honesty (see `evals/FINDINGS.md`)
 - [x] Eval: summary-vs-data consistency scoring (LLM judge, `--judge`)

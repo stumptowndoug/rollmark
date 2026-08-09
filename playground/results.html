@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rollmark eval viewer</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --border: #d0d4da;
+        --muted: #667085;
+        --pass: #1a7f37;
+        --pass-bg: #e6f4ea;
+        --repair: #9a6700;
+        --repair-bg: #fff3d1;
+        --fail: #b42318;
+        --fail-bg: #fde8e6;
+        --flag: #b54708;
+        --flag-bg: #ffefdf;
+        --hover: #f0f2f5;
+        --code-bg: #f4f5f7;
+        --fallback-bg: #fff6f5;
+        --fallback-border: #f0b4ad;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --border: #3a3f47;
+          --muted: #98a2b3;
+          --pass: #4ade80;
+          --pass-bg: #14301f;
+          --repair: #fbbf24;
+          --repair-bg: #33290f;
+          --fail: #f87171;
+          --fail-bg: #371a17;
+          --flag: #fb923c;
+          --flag-bg: #33210f;
+          --hover: #23262c;
+          --code-bg: #23262c;
+          --fallback-bg: #2a1f1e;
+          --fallback-border: #7a4a44;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, sans-serif;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        padding: 0.6rem 1rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+      header h1 { font-size: 1rem; margin: 0; }
+      header a { color: var(--muted); font-size: 0.85rem; }
+      header select {
+        font: inherit;
+        font-size: 0.85rem;
+        padding: 0.2rem 0.4rem;
+        max-width: 24rem;
+      }
+      main { flex: 1; display: flex; min-height: 0; }
+      #matrix {
+        width: 46%;
+        min-width: 360px;
+        overflow: auto;
+        border-right: 1px solid var(--border);
+        padding: 0.75rem;
+      }
+      #matrix table { border-collapse: collapse; font-size: 0.75rem; }
+      #matrix th {
+        text-align: left;
+        padding: 0.25rem 0.4rem;
+        color: var(--muted);
+        font-weight: 500;
+        white-space: nowrap;
+      }
+      #matrix thead th {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        text-align: left;
+        vertical-align: bottom;
+      }
+      #matrix td { padding: 2px; }
+      .chip {
+        display: block;
+        width: 1.7rem;
+        height: 1.35rem;
+        line-height: 1.35rem;
+        text-align: center;
+        border-radius: 4px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        font-size: 0.75rem;
+      }
+      .chip:hover { border-color: var(--muted); }
+      .chip.selected { border-color: currentColor; }
+      .chip.pass { color: var(--pass); background: var(--pass-bg); }
+      .chip.repair { color: var(--repair); background: var(--repair-bg); }
+      .chip.fail { color: var(--fail); background: var(--fail-bg); }
+      .chip.flag { color: var(--flag); background: var(--flag-bg); }
+      .chip.empty { visibility: hidden; }
+      #legend { margin-top: 0.75rem; font-size: 0.75rem; color: var(--muted); display: flex; gap: 0.9rem; flex-wrap: wrap; }
+      #legend .chip { display: inline-block; cursor: default; margin-right: 0.25rem; vertical-align: middle; }
+      #detail { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; line-height: 1.55; }
+      #detail .placeholder { color: var(--muted); }
+      #detail h2 { margin-top: 0; font-size: 1rem; }
+      .metrics { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.5rem 0 0.75rem; }
+      .metric {
+        font-size: 0.72rem;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 0.1rem 0.55rem;
+        color: var(--muted);
+      }
+      .metric.ok { color: var(--pass); border-color: var(--pass); }
+      .metric.bad { color: var(--fail); border-color: var(--fail); }
+      .issues { font-size: 0.8rem; color: var(--fail); margin: 0.5rem 0; padding-left: 1.1rem; }
+      .attempt-tabs { display: flex; gap: 0.4rem; margin: 0.75rem 0; }
+      .attempt-tabs button {
+        font: inherit;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.7rem;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: inherit;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .attempt-tabs button.active { border-color: currentColor; }
+      #doc { border-top: 1px solid var(--border); padding-top: 0.75rem; }
+      #doc pre { background: var(--code-bg); padding: 0.75rem; border-radius: 6px; overflow-x: auto; font-size: 0.8rem; }
+      #doc table { border-collapse: collapse; }
+      #doc td, #doc th { border: 1px solid var(--border); padding: 0.3rem 0.6rem; }
+      .rollmark-block[data-rollmark-block="chart"] { height: 300px; margin: 1rem 0; }
+      .rollmark-block[data-rollmark-block="mermaid"] { margin: 1rem 0; }
+      .rollmark-fallback {
+        border: 1px solid var(--fallback-border);
+        background: var(--fallback-bg);
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        margin: 1rem 0;
+      }
+      .rollmark-fallback-title { font-weight: 600; margin: 0 0 0.25rem; }
+      .rollmark-fallback-summary { margin: 0 0 0.5rem; }
+      .rollmark-fallback-reason { color: var(--muted); font-size: 0.85rem; margin: 0 0 0.5rem; }
+      details.source { margin-top: 1rem; }
+      details.source summary { cursor: pointer; font-size: 0.85rem; color: var(--muted); }
+      details.source pre { background: var(--code-bg); padding: 0.75rem; border-radius: 6px; overflow-x: auto; font-size: 0.75rem; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Rollmark eval viewer</h1>
+      <select id="run-select"></select>
+      <a href="/index.html">playground →</a>
+    </header>
+    <main>
+      <div id="matrix"></div>
+      <div id="detail"><p class="placeholder">Pick a cell to see that model's actual output.</p></div>
+    </main>
+    <script type="module" src="/src/results.ts"></script>
+  </body>
+</html>

@@ -70,6 +70,8 @@ cd playground && npm install && npm run dev
 
 Left pane is the Markdown source, right pane renders it live: ECharts for `chart` blocks, Mermaid (`securityLevel: strict`) for diagrams, the SPEC §4 fallback card for invalid charts, with light/dark following the system theme.
 
+The same dev server hosts the **eval viewer** at `/results.html`: pick a run from `evals/results/`, get a model × task matrix (✓ first try, ↻ after repair, ⚠ summary flagged by the judge, ✗ failed), and click any cell to see that model's actual document rendered — metric chips, judge verdicts, and attempt-1 vs. after-repair tabs included. Run `npm run eval` first; new result files appear after a dev-server restart.
+
 ## Evals
 
 The eval suite measures whether models can reliably generate Rollmark: fence formation, JSON/schema validity, **data fidelity** (exact preservation of source values), chart-type appropriateness, presence of `summary`, first-pass success, and recovery via a one-shot repair loop. Twelve tasks cover JSON/CSV/prose inputs, temporal and categorical data, multi-series, null gaps, negatives/decimals, thousands-separator parsing, a diagram task, a "no chart warranted" task, and a two-chart document.
