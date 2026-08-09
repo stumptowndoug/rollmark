@@ -363,9 +363,15 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
   }
   xBaseline(frame);
 
-  const xDisplay = (i: number): string => String(xRaw[i]);
+  const fmtX = temporal ? utcFormat("%b %-d, %Y") : undefined;
+  const xDisplay = (i: number): string =>
+    fmtX ? fmtX(new Date(String(xRaw[i]))) : String(xRaw[i]);
+  // Marks carry a native <title> (works in static contexts) plus data
+  // attributes the mount layer's tooltip engine reads.
   const mark = (i: number, s: SeriesData, v: number): string =>
     `<title>${esc(`${xDisplay(i)} · ${s.label}: ${fmtValue(v)}`)}</title>`;
+  const markAttrs = (i: number, s: SeriesData, v: number): string =>
+    ` data-rm-x="${esc(xDisplay(i))}" data-rm-s="${esc(s.label)}" data-rm-v="${esc(fmtValue(v))}"`;
 
   if (spec.type === "bar" && spec.stack) {
     const layout = stackedLayout(series);
@@ -377,7 +383,7 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
         const top = frame.top + yScale(Math.max(y0, y1));
         const h = Math.abs(yScale(y0) - yScale(y1));
         frame.parts.push(
-          `<rect x="${xPos(i)}" y="${top}" width="${bandwidth}" height="${h}" fill="${s.color}">${mark(i, s, v)}</rect>`,
+          `<rect x="${xPos(i)}" y="${top}" width="${bandwidth}" height="${h}" fill="${s.color}"${markAttrs(i, s, v)}>${mark(i, s, v)}</rect>`,
         );
       });
     });
@@ -393,7 +399,7 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
         const top = frame.top + yScale(Math.max(0, v));
         const h = Math.abs(yScale(v) - yScale(0));
         frame.parts.push(
-          `<rect x="${xPos(i) + si * inner}" y="${top}" width="${Math.max(1, barWidth)}" height="${h}" fill="${s.color}">${mark(i, s, v)}</rect>`,
+          `<rect x="${xPos(i) + si * inner}" y="${top}" width="${Math.max(1, barWidth)}" height="${h}" fill="${s.color}"${markAttrs(i, s, v)}>${mark(i, s, v)}</rect>`,
         );
       });
     });
@@ -403,7 +409,7 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
         const v = s.values[i];
         if (v === null || v === undefined) return;
         frame.parts.push(
-          `<circle cx="${xPos(i)}" cy="${frame.top + yScale(v)}" r="4" fill="${s.color}" fill-opacity="0.85">${mark(i, s, v)}</circle>`,
+          `<circle cx="${xPos(i)}" cy="${frame.top + yScale(v)}" r="4" fill="${s.color}" fill-opacity="0.85"${markAttrs(i, s, v)}>${mark(i, s, v)}</circle>`,
         );
       });
     });
@@ -446,7 +452,7 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
         const v = s.values[i];
         if (v === null || v === undefined) return;
         frame.parts.push(
-          `<circle cx="${xPos(i) + bandwidth / 2}" cy="${frame.top + yScale(v)}" r="2.5" fill="${s.color}">${mark(i, s, v)}</circle>`,
+          `<circle cx="${xPos(i) + bandwidth / 2}" cy="${frame.top + yScale(v)}" r="2.5" fill="${s.color}"${markAttrs(i, s, v)}>${mark(i, s, v)}</circle>`,
         );
       });
     });
@@ -507,7 +513,7 @@ function renderPie(spec: ChartSpec, options: RenderSvgOptions): string {
   arcs.forEach((a, i) => {
     const pctText = `${Math.round((a.data.value / total) * 100)}%`;
     frame.parts.push(
-      `<path transform="translate(${cx},${cy})" d="${arcGen(a) ?? ""}" fill="${frame.theme.series[i % frame.theme.series.length]}"><title>${esc(`${a.data.label}: ${fmtValue(a.data.value)} (${pctText})`)}</title></path>`,
+      `<path transform="translate(${cx},${cy})" d="${arcGen(a) ?? ""}" fill="${frame.theme.series[i % frame.theme.series.length]}" data-rm-x="${esc(a.data.label)}" data-rm-v="${esc(`${fmtValue(a.data.value)} (${pctText})`)}"><title>${esc(`${a.data.label}: ${fmtValue(a.data.value)} (${pctText})`)}</title></path>`,
     );
   });
 
