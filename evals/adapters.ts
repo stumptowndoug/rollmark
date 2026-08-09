@@ -155,17 +155,26 @@ function buildChartSpecs(task: EvalTask): Record<string, unknown>[] {
   });
 }
 
-/** A structured-arm response built from the same expectation. */
+/** A structured-arm response (parallel-array shape) built from the same expectation. */
 function structuredReport(task: EvalTask): string {
-  const charts = buildChartSpecs(task).map((spec) => ({
-    version: spec.version,
-    type: spec.type,
-    title: spec.title,
-    summary: spec.summary,
-    x: { label: null, type: null, ...(spec.x as object) },
-    series: (spec.series as { field: string }[]).map((s) => ({ label: null, ...s })),
-    data: spec.data,
-  }));
+  const exp = task.expected;
+  const seriesGroups =
+    (exp.minCharts ?? 1) > 1 ? exp.series!.map((s) => [s]) : [exp.series!];
+  const charts = seriesGroups.map((group, g) => {
+    const xValues =
+      seriesGroups.length === 1 && exp.xValues && exp.xValues.length > 0
+        ? exp.xValues
+        : group[0]!.values.map((_, j) => `item-${g}-${j}`);
+    return {
+      type: exp.chartTypes?.[0] ?? "line",
+      title: `Chart ${g + 1}`,
+      summary: `Values range across ${group[0]!.values.length} points.`,
+      x_label: null,
+      x_temporal: exp.temporal ?? false,
+      x_values: xValues.map(String),
+      series: group.map((s, i) => ({ label: `Series ${i + 1}`, values: s.values })),
+    };
+  });
   return JSON.stringify({ intro: "Here is the requested report.", charts, outro: null });
 }
 
@@ -181,24 +190,8 @@ export function mockAdapter(kind: "perfect" | "sloppy"): ModelAdapter {
       );
       if (meta?.responseFormat) {
         if (kind === "sloppy" && !isRepair) {
-          // Schema-shaped but semantically broken: series field absent from data.
-          return {
-            text: JSON.stringify({
-              intro: "Report.",
-              charts: [
-                {
-                  version: 1,
-                  type: "line",
-                  title: null,
-                  summary: "s",
-                  x: { field: "x", label: null, type: null },
-                  series: [{ field: "wrong", label: null }],
-                  data: [{ x: "a", y0: 1 }],
-                },
-              ],
-              outro: null,
-            }),
-          };
+          // Unparseable response: exercises the serialization-failure path.
+          return { text: "I cannot produce JSON right now." };
         }
         return { text: structuredReport(task) };
       }

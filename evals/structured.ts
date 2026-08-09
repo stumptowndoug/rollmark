@@ -5,42 +5,42 @@
  * Rollmark document. The result is scored by the same scorer as the direct
  * arm, so the two strategies are directly comparable.
  *
+ * The response shape uses parallel arrays (x_values + per-series values)
+ * rather than field-keyed rows, for two reasons learned from the first run:
+ * strict-mode validators (OpenAI, Google, Anthropic) require
+ * additionalProperties:false on every object, which forbids dynamic
+ * field-name keys; and field-keyed rows make models responsible for keeping
+ * x.field/series[].field consistent with row keys, a pure bookkeeping
+ * failure mode. The serializer owns field naming instead.
+ *
  * Only chart tasks run in this arm — it exists to test chart generation.
  */
 
 import type { ChatMessage } from "./adapters.js";
 import type { EvalTask } from "./tasks.js";
 
-/**
- * Strict-mode variant of the chart schema: every property required,
- * optionality expressed as nullable types (OpenAI-style strict json_schema
- * forbids optional keys). The serializer drops nulls when emitting Rollmark.
- */
-const STRICT_CHART_SCHEMA = {
+const STRUCTURED_CHART_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["version", "type", "title", "summary", "x", "series", "data"],
+  required: ["type", "title", "summary", "x_label", "x_temporal", "x_values", "series"],
   properties: {
-    version: { type: "integer", enum: [1] },
     type: { type: "string", enum: ["line", "bar"] },
     title: { type: ["string", "null"], description: "Chart title, or null." },
     summary: {
       type: "string",
-      description:
-        "One or two sentences stating what the chart shows, consistent with the data.",
+      description: "One or two sentences stating what the chart shows, consistent with the data.",
     },
-    x: {
-      type: "object",
-      additionalProperties: false,
-      required: ["field", "label", "type"],
-      properties: {
-        field: { type: "string" },
-        label: { type: ["string", "null"] },
-        type: {
-          type: ["string", "null"],
-          enum: ["category", "temporal", null],
-          description: 'Use "temporal" with ISO 8601 x values for dates; null otherwise.',
-        },
+    x_label: { type: ["string", "null"], description: "X-axis label, or null." },
+    x_temporal: {
+      type: "boolean",
+      description: "True when x values are dates. Dates must be ISO 8601 strings.",
+    },
+    x_values: {
+      type: "array",
+      minItems: 1,
+      items: {
+        type: "string",
+        description: "X value: a category label, or an ISO 8601 date when x_temporal is true.",
       },
     },
     series: {
@@ -50,20 +50,17 @@ const STRICT_CHART_SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["field", "label"],
+        required: ["label", "values"],
         properties: {
-          field: { type: "string" },
-          label: { type: ["string", "null"] },
+          label: { type: "string" },
+          values: {
+            type: "array",
+            items: {
+              type: ["number", "null"],
+              description: "Y value aligned with x_values by index; null for a missing value.",
+            },
+          },
         },
-      },
-    },
-    data: {
-      type: "array",
-      minItems: 1,
-      items: {
-        type: "object",
-        description:
-          "One row. Keys are the field names used by x and series; series values are numbers or null.",
       },
     },
   },
@@ -81,7 +78,7 @@ const REPORT_SCHEMA = {
     charts: {
       type: "array",
       minItems: 1,
-      items: STRICT_CHART_SCHEMA,
+      items: STRUCTURED_CHART_SCHEMA,
     },
     outro: {
       type: ["string", "null"],
@@ -109,24 +106,25 @@ export function structuredMessages(task: EvalTask): ChatMessage[] {
       role: "system",
       content:
         "You produce data reports as JSON conforming to the provided schema. " +
-        "The `charts` array holds chart specifications; `intro` and `outro` are Markdown prose. " +
+        "`intro` and `outro` are Markdown prose; `charts` holds chart specifications. " +
+        "Each chart lists its x-axis values in `x_values` and one or more `series`, whose `values` " +
+        "array aligns with `x_values` by index (use null for a missing value). " +
+        'When x values are dates, set `x_temporal` to true and write ISO 8601 dates ("2026-08-01"). ' +
         "CRITICAL: use the exact numbers from the source data — never round, estimate, invent, or omit data points. " +
-        "Always write a `summary` for each chart that is consistent with its data. " +
-        'When x values are dates, set x.type to "temporal" and write ISO 8601 dates. ' +
-        "Data rows are flat objects whose keys match x.field and each series field; series values are numbers, or null for a missing value.",
+        "Always write a `summary` for each chart that is consistent with its data.",
     },
     { role: "user", content: `${task.request}\n\nInput data:\n\n${task.input}` },
   ];
 }
 
 interface StructuredChart {
-  version: number;
   type: string;
   title: string | null;
   summary: string;
-  x: { field: string; label: string | null; type: string | null };
-  series: { field: string; label: string | null }[];
-  data: Record<string, unknown>[];
+  x_label: string | null;
+  x_temporal: boolean;
+  x_values: string[];
+  series: { label: string; values: (number | null)[] }[];
 }
 
 interface StructuredReport {
@@ -135,36 +133,33 @@ interface StructuredReport {
   outro: string | null;
 }
 
-function stripNulls(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(stripNulls);
-  if (typeof value === "object" && value !== null) {
-    const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(value)) {
-      if (v !== null) out[k] = stripNulls(v);
-    }
-    return out;
-  }
-  return value;
-}
-
 /**
  * Deterministically assemble a Rollmark document from the structured
- * response. Nulls for optional fields are dropped; data-row nulls are
- * preserved (they mean "gap" per SPEC.md §2.2).
+ * response. The serializer owns field naming (x, s0..sN); a series value
+ * missing at some index becomes null — a gap per SPEC.md §2.2.
  */
 export function serializeStructuredReport(raw: string): string {
   const report = JSON.parse(raw) as StructuredReport;
   const parts: string[] = [report.intro.trim()];
   for (const chart of report.charts) {
     const spec: Record<string, unknown> = {
-      version: chart.version,
+      version: 1,
       type: chart.type,
-      ...(chart.title !== null ? { title: chart.title } : {}),
+      ...(chart.title !== null && chart.title !== undefined ? { title: chart.title } : {}),
       summary: chart.summary,
-      x: stripNulls(chart.x),
-      series: chart.series.map(stripNulls),
-      // Preserve nulls inside rows — a null series value is a gap.
-      data: chart.data,
+      x: {
+        field: "x",
+        ...(chart.x_label !== null && chart.x_label !== undefined ? { label: chart.x_label } : {}),
+        ...(chart.x_temporal ? { type: "temporal" } : {}),
+      },
+      series: chart.series.map((s, i) => ({ field: `s${i}`, label: s.label })),
+      data: chart.x_values.map((x, row) => {
+        const rowObj: Record<string, unknown> = { x };
+        chart.series.forEach((s, i) => {
+          rowObj[`s${i}`] = s.values[row] ?? null;
+        });
+        return rowObj;
+      }),
     };
     parts.push("```chart\n" + JSON.stringify(spec, null, 2) + "\n```");
   }

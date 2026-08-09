@@ -153,12 +153,13 @@ describe("eval harness", () => {
     }
   });
 
-  it("structured mode repairs a semantically broken response", async () => {
+  it("structured mode repairs an unparseable response", async () => {
     const run = await runEvals([mockAdapter("sloppy")], getTasks(["ts-basic"]), {
       modes: ["structured"],
     });
     const t = run.models[0]!.tasks[0]!;
     expect(t.firstAttempt.pass).toBe(false);
+    expect(t.firstAttempt.jsonValid).toBe(false);
     expect(t.final.pass).toBe(true);
     expect(t.repairAttempt).toBeDefined();
   });
