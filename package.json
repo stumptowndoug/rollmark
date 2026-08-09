@@ -1,10 +1,24 @@
 {
   "name": "rollmark",
   "version": "0.1.0",
-  "private": true,
-  "description": "An experimental Markdown-based document format and renderer for AI-generated visual reports.",
+  "description": "Markdown-based document format and renderer for AI-generated reports with charts: a tiny LLM-friendly chart DSL, strict validation, and an opinionated SVG renderer.",
   "license": "MIT",
+  "keywords": [
+    "markdown",
+    "markdown-it",
+    "charts",
+    "svg",
+    "llm",
+    "ai",
+    "reports",
+    "visualization",
+    "d3"
+  ],
   "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -12,14 +26,19 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./schemas/chart.v1.json": "./schemas/chart.v1.json"
+    "./schemas/chart.v1.json": "./schemas/chart.v1.json",
+    "./prompt-kit/system-prompt.md": "./prompt-kit/system-prompt.md",
+    "./prompt-kit/examples.md": "./prompt-kit/examples.md"
   },
   "files": [
     "dist",
     "schemas",
-    "SPEC.md"
+    "prompt-kit",
+    "SPEC.md",
+    "docs/chart-dsl.md"
   ],
   "scripts": {
+    "prepublishOnly": "npm run typecheck && npm test && npm run build",
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

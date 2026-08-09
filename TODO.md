@@ -18,6 +18,8 @@
 
 ## 🚧 In Progress
 
+- [ ] Package-readiness: publishable package.json, LICENSE, CI workflow, pack verification
+
 ## ✅ Done
 
 - [x] v1 cleanup: ECharts compiler removed; design docs moved to docs/design/
