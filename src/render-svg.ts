@@ -1,9 +1,9 @@
 import { extent, max, min, range } from "d3-array";
 import { format } from "d3-format";
-import { scaleBand, scaleLinear, scalePoint, scaleTime } from "d3-scale";
+import { scaleBand, scaleLinear, scalePoint, scaleUtc } from "d3-scale";
 import type { ScaleBand, ScaleContinuousNumeric, ScalePoint } from "d3-scale";
 import { arc, area as d3area, line as d3line, pie as d3pie, stack, stackOffsetDiverging } from "d3-shape";
-import { timeFormat } from "d3-time-format";
+import { utcFormat } from "d3-time-format";
 
 import type { ChartSpec } from "./types.js";
 
@@ -143,11 +143,14 @@ function xTickText(frame: Frame, x: number, label: string): void {
   );
 }
 
+// ISO 8601 payload dates are UTC; format them in UTC so output is
+// deterministic across machines (a "2026-08-01" chart must never show
+// "Jul 31" to a viewer west of UTC).
 function timeTickFormatter(span: number): (d: Date) => string {
   const day = 86_400_000;
-  if (span > 300 * day) return timeFormat("%b %Y");
-  if (span > 3 * day) return timeFormat("%b %-d");
-  return timeFormat("%H:%M");
+  if (span > 300 * day) return utcFormat("%b %Y");
+  if (span > 3 * day) return utcFormat("%b %-d");
+  return utcFormat("%H:%M");
 }
 
 // ---------------------------------------------------------------------------
@@ -213,7 +216,7 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
     bandwidth = scale.bandwidth();
     xPos = (i) => frame.left + (scale(domain[i]!) ?? 0);
     const step = Math.max(1, Math.ceil(domain.length / 12));
-    const fmtDate = temporal ? timeFormat("%b %-d") : undefined;
+    const fmtDate = temporal ? utcFormat("%b %-d") : undefined;
     domain.forEach((d, i) => {
       if (i % step !== 0) return;
       const label = fmtDate ? fmtDate(new Date(d)) : d;
@@ -223,14 +226,14 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
     const values = temporal ? xRaw.map((v) => new Date(String(v)).getTime()) : (xRaw as number[]);
     const [dLo, dHi] = extent(values) as [number, number];
     const scale = temporal
-      ? scaleTime()
+      ? scaleUtc()
           .domain([new Date(dLo), new Date(dHi)])
           .range([0, frame.innerW])
       : scaleLinear().domain([dLo, dHi]).nice().range([0, frame.innerW]);
     xPos = (i) => frame.left + scale(temporal ? new Date(String(xRaw[i])) : (xRaw[i] as number));
     if (temporal) {
       const fmt = timeTickFormatter(dHi - dLo);
-      for (const t of (scale as ReturnType<typeof scaleTime>).ticks(6)) {
+      for (const t of (scale as ReturnType<typeof scaleUtc>).ticks(6)) {
         xTickText(frame, frame.left + scale(t as never), fmt(t as Date));
       }
     } else {
