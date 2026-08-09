@@ -1,5 +1,7 @@
 import { escapeHtml, renderMermaidFallback } from "./fallback.js";
 import { renderChartSVG } from "./render-svg.js";
+import type { ChartColors } from "./render-svg.js";
+import type { PaletteName } from "./palettes.js";
 import { renderRollmark } from "./render.js";
 import type { RollmarkBlock } from "./types.js";
 
@@ -23,6 +25,10 @@ export interface MermaidLike {
 export interface MountOptions {
   /** "auto" (default) follows prefers-color-scheme at mount time. */
   theme?: "light" | "dark" | "auto";
+  /** Named built-in series palette for charts. */
+  palette?: PaletteName;
+  /** Custom chart colors; `colors.series` wins over `palette`. */
+  colors?: ChartColors;
   /** Consumer-supplied mermaid instance for diagram blocks. */
   mermaid?: MermaidLike;
   /**
@@ -82,7 +88,11 @@ export async function mountRollmarkDocument(
     if (!el) continue;
 
     if (block.type === "chart" && block.spec) {
-      el.innerHTML = renderChartSVG(block.spec, { theme });
+      el.innerHTML = renderChartSVG(block.spec, {
+        theme,
+        palette: options.palette,
+        colors: options.colors,
+      });
     } else if (block.type === "mermaid") {
       if (!mermaid) {
         el.outerHTML = `<pre><code>${escapeHtml(block.source)}</code></pre>`;
