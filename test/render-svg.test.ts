@@ -111,6 +111,19 @@ describe("renderChartSVG", () => {
     expect(count(svg, /<path/g)).toBe(8);
   });
 
+  it("rotates crowded category labels, keeps roomy ones horizontal", () => {
+    const long = spec({
+      data: Array.from({ length: 10 }, (_, i) => ({ k: `Platform Engineering ${i}`, v: i + 1 })),
+    });
+    const rotated = renderChartSVG(long);
+    expect(rotated).toContain("rotate(-35");
+    expect(rotated).toContain("…"); // truncated past the 18-char cap
+    expect(rotated).toContain("<title>Platform Engineering 0</title>"); // full text on hover
+
+    const short = renderChartSVG(spec({}));
+    expect(short).not.toContain("rotate(-35");
+  });
+
   it("supports the dark theme", () => {
     const svg = renderChartSVG(spec({ title: "Dark" }), { theme: "dark" });
     expect(svg).toContain("#e5e7eb"); // dark text on the title

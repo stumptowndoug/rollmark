@@ -73,7 +73,12 @@ interface Frame {
   parts: string[];
 }
 
-function openSvg(spec: ChartSpec, options: RenderSvgOptions, legendCount: number): Frame {
+function openSvg(
+  spec: ChartSpec,
+  options: RenderSvgOptions,
+  legendCount: number,
+  bottom = 40,
+): Frame {
   const width = options.width ?? 640;
   const height = options.height ?? 360;
   const theme = THEMES[options.theme ?? "light"];
@@ -82,7 +87,6 @@ function openSvg(spec: ChartSpec, options: RenderSvgOptions, legendCount: number
   const top = 16 + (hasTitle ? 28 : 0) + (hasLegend ? 24 : 0);
   const left = 56;
   const right = 16;
-  const bottom = 40;
   const label = [spec.title, spec.summary].filter(Boolean).join(". ") || "Chart";
   const parts: string[] = [
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" class="rollmark-chart-svg" role="img" aria-label="${esc(label)}" font-family="${FONT}">`,
@@ -136,11 +140,69 @@ function xBaseline(frame: Frame): void {
   );
 }
 
-function xTickText(frame: Frame, x: number, label: string): void {
-  const y = frame.top + frame.innerH + 18;
-  frame.parts.push(
-    `<text x="${x}" y="${y}" font-size="11" text-anchor="middle" fill="${frame.theme.muted}"><title>${esc(label)}</title>${esc(truncate(label, 14))}</text>`,
-  );
+// Approximate glyph width at font-size 11, used to decide label rotation.
+const TICK_CHAR_W = 6.2;
+// The "reasonable maximum": labels longer than this are truncated with an
+// ellipsis (the full text stays available as native hover via <title>).
+const TICK_MAX_CHARS = 18;
+const TICK_ANGLE = -35;
+
+function xTickText(
+  frame: Frame,
+  x: number,
+  label: string,
+  rotated = false,
+  maxChars = TICK_MAX_CHARS,
+): void {
+  const full = `<title>${esc(label)}</title>`;
+  if (rotated) {
+    const y = frame.top + frame.innerH + 14;
+    frame.parts.push(
+      `<text x="${x}" y="${y}" font-size="11" text-anchor="end" transform="rotate(${TICK_ANGLE}, ${x}, ${y})" fill="${frame.theme.muted}">${full}${esc(truncate(label, maxChars))}</text>`,
+    );
+  } else {
+    const y = frame.top + frame.innerH + 18;
+    frame.parts.push(
+      `<text x="${x}" y="${y}" font-size="11" text-anchor="middle" fill="${frame.theme.muted}">${full}${esc(truncate(label, maxChars))}</text>`,
+    );
+  }
+}
+
+interface TickLayout {
+  rotated: boolean;
+  bottom: number;
+  step: number;
+  maxChars: number;
+}
+
+/**
+ * Category-axis layout decision, made before the frame exists so the
+ * bottom margin can grow to fit rotated labels: rotate to -35° when the
+ * widest (truncated) label would overflow its slot. The character cap is
+ * clamped so the leftmost rotated label cannot extend past the SVG's
+ * left edge and get clipped.
+ */
+function categoryTickLayout(labels: string[], options: RenderSvgOptions): TickLayout {
+  const width = options.width ?? 640;
+  const left = 56;
+  const innerW = width - left - 16;
+  const step = Math.max(1, Math.ceil(labels.length / 12));
+  const shown = labels.filter((_, i) => i % step === 0);
+  const slot = innerW / Math.max(1, shown.length);
+  const longest = Math.max(0, ...shown.map((s) => s.length));
+
+  const cos = Math.cos((Math.abs(TICK_ANGLE) * Math.PI) / 180);
+  const sin = Math.sin((Math.abs(TICK_ANGLE) * Math.PI) / 180);
+  // Horizontal room from the first tick's center back to the edge.
+  const firstTickX = left + slot / 2;
+  const edgeCap = Math.floor((firstTickX - 4) / (cos * TICK_CHAR_W));
+  const maxChars = Math.max(8, Math.min(TICK_MAX_CHARS, edgeCap));
+
+  const rotated = Math.min(longest, maxChars) * TICK_CHAR_W > slot - 8;
+  const bottom = rotated
+    ? 28 + Math.ceil(sin * Math.min(longest, maxChars) * TICK_CHAR_W)
+    : 40;
+  return { rotated, bottom, step, maxChars: rotated ? maxChars : TICK_MAX_CHARS };
 }
 
 // ISO 8601 payload dates are UTC; format them in UTC so output is
@@ -167,10 +229,25 @@ interface SeriesData {
 }
 
 function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
-  const frame = openSvg(spec, options, spec.series.length);
   const rows = spec.data;
   const temporal = spec.x.type === "temporal";
   const xRaw = rows.map((r) => r[spec.x.field]);
+  const numericScatter = spec.type === "scatter" && typeof xRaw[0] === "number";
+
+  // Category axes decide label rotation (and the bottom margin it needs)
+  // up front; temporal/numeric axes use short formatted ticks and never rotate.
+  let categoryLabels: string[] | undefined;
+  let tickLayout: TickLayout = { rotated: false, bottom: 40, step: 1, maxChars: TICK_MAX_CHARS };
+  if (spec.type === "bar") {
+    const fmtDate = temporal ? utcFormat("%b %-d") : undefined;
+    categoryLabels = xRaw.map((v) => (fmtDate ? fmtDate(new Date(String(v))) : String(v)));
+    tickLayout = categoryTickLayout(categoryLabels, options);
+  } else if (!temporal && !numericScatter) {
+    categoryLabels = xRaw.map(String);
+    tickLayout = categoryTickLayout(categoryLabels, options);
+  }
+
+  const frame = openSvg(spec, options, spec.series.length, tickLayout.bottom);
   const series: SeriesData[] = spec.series.map((s, i) => ({
     label: s.label ?? s.field,
     color: SERIES_COLORS[i % SERIES_COLORS.length]!,
@@ -215,14 +292,11 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
       .paddingOuter(0.15);
     bandwidth = scale.bandwidth();
     xPos = (i) => frame.left + (scale(domain[i]!) ?? 0);
-    const step = Math.max(1, Math.ceil(domain.length / 12));
-    const fmtDate = temporal ? utcFormat("%b %-d") : undefined;
-    domain.forEach((d, i) => {
-      if (i % step !== 0) return;
-      const label = fmtDate ? fmtDate(new Date(d)) : d;
-      xTickText(frame, xPos(i) + bandwidth / 2, label);
+    domain.forEach((_, i) => {
+      if (i % tickLayout.step !== 0) return;
+      xTickText(frame, xPos(i) + bandwidth / 2, categoryLabels![i]!, tickLayout.rotated, tickLayout.maxChars);
     });
-  } else if (temporal || (spec.type === "scatter" && typeof xRaw[0] === "number")) {
+  } else if (temporal || numericScatter) {
     const values = temporal ? xRaw.map((v) => new Date(String(v)).getTime()) : (xRaw as number[]);
     const [dLo, dHi] = extent(values) as [number, number];
     const scale = temporal
@@ -248,9 +322,10 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
       .range([0, frame.innerW])
       .padding(0.5);
     xPos = (i) => frame.left + (scale(domain[i]!) ?? 0);
-    const step = Math.max(1, Math.ceil(domain.length / 12));
-    domain.forEach((d, i) => {
-      if (i % step === 0) xTickText(frame, xPos(i), d);
+    domain.forEach((_, i) => {
+      if (i % tickLayout.step === 0) {
+        xTickText(frame, xPos(i), categoryLabels![i]!, tickLayout.rotated, tickLayout.maxChars);
+      }
     });
   }
   xBaseline(frame);
