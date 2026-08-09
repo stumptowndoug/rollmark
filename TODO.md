@@ -23,6 +23,8 @@
 
 ## ✅ Done
 
+- [x] Product-first README: what/why/philosophy in plain language, chart gallery of real renderer output (`npm run build:images`, light+dark via `<picture>`) — verified rendering on GitHub
+
 - [x] GitHub repo created (github.com/stumptowndoug/rollmark, public); CI live and green
   - [x] CI immediately caught a real bug: temporal axes formatted in local time — now UTC (scaleUtc/utcFormat)
 - [x] `mountRollmarkDocument`: one-call browser integration (charts + injected mermaid w/ strict init + fallbacks + auto theme); playground is now a 10-line wrapper; 5 DOM tests
