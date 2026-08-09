@@ -1,5 +1,5 @@
 export { LIMITS } from "./limits.js";
-export { validateChart } from "./validate.js";
+export { validateChart, validateChartValue } from "./validate.js";
 export { rollmarkPlugin } from "./markdown-it-plugin.js";
 export type { RollmarkEnvState } from "./markdown-it-plugin.js";
 export { renderRollmark } from "./render.js";

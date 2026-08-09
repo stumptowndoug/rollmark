@@ -2,12 +2,13 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { renderRollmark } from "../src/render.js";
 import type { ChatMessage, ModelAdapter } from "./adapters.js";
 import { OpenRouterAdapter, listOpenRouterModels, mockAdapter } from "./adapters.js";
+import { buildFormatSystemPrompt, getFormat, transcodeChartFences } from "./formats.js";
+import type { ChartFormat } from "./formats.js";
 import { judgeSummary } from "./judge.js";
 import { toMarkdownReport } from "./report.js";
-import { repairableIssues, scoreDocument } from "./score.js";
+import { chartSpecs, repairableIssues, scoreDocument } from "./score.js";
 import type { MetricResults } from "./score.js";
 import {
   STRUCTURED_RESPONSE_FORMAT,
@@ -30,6 +31,11 @@ export interface TaskResult {
   /** The attempt that counts: repair if attempted, else first. */
   final: MetricResults;
   documents: string[];
+  /**
+   * Format runs only: documents with chart fences transcoded to canonical
+   * JSON so the standard viewer can render them. Aligned with `documents`.
+   */
+  rendered?: string[];
   usage: { promptTokens: number; completionTokens: number };
   error?: string;
 }
@@ -37,6 +43,8 @@ export interface TaskResult {
 export interface ModelResult {
   model: string;
   mode: EvalMode;
+  /** Payload syntax used, when this row came from a format A/B run. */
+  format?: string;
   tasks: TaskResult[];
 }
 
@@ -93,10 +101,13 @@ interface RunTaskOptions {
   repair: boolean;
   mode: EvalMode;
   judge?: ModelAdapter;
+  /** Payload syntax for format A/B runs; documents are scored under it. */
+  format?: ChartFormat;
 }
 
 async function runTask(opts: RunTaskOptions): Promise<TaskResult> {
-  const { adapter, system, task, repair, mode, judge } = opts;
+  const { adapter, system, task, repair, mode, judge, format } = opts;
+  const validator = format?.validate;
   const usage = { promptTokens: 0, completionTokens: 0 };
   const documents: string[] = [];
   const structured = mode === "structured";
@@ -121,11 +132,17 @@ async function runTask(opts: RunTaskOptions): Promise<TaskResult> {
     }
   }
 
+  const withRendered = (result: TaskResult): TaskResult => {
+    if (format && format.id !== "json" && documents.length > 0) {
+      result.rendered = documents.map((d) => transcodeChartFences(d, format.validate));
+    }
+    return result;
+  };
+
   async function judgeFinal(final: MetricResults, document: string): Promise<void> {
     if (!judge || task.expected.blockType !== "chart" || !final.pass) return;
     try {
-      const { blocks } = renderRollmark(document);
-      const specs = blocks.flatMap((b) => (b.type === "chart" && b.spec ? [b.spec] : []));
+      const specs = chartSpecs(document, validator);
       const verdicts = await Promise.all(specs.map((spec) => judgeSummary(judge, spec)));
       final.summaryConsistent = verdicts.every((v) => v.consistent);
       for (const v of verdicts) {
@@ -142,7 +159,7 @@ async function runTask(opts: RunTaskOptions): Promise<TaskResult> {
     usage.completionTokens += first.usage?.completionTokens ?? 0;
     const firstDoc = toDocument(first.text);
     documents.push(firstDoc.document);
-    const firstAttempt = scoreDocument(task, firstDoc.document);
+    const firstAttempt = scoreDocument(task, firstDoc.document, validator);
     if (firstDoc.error) {
       firstAttempt.pass = false;
       firstAttempt.jsonValid = false;
@@ -152,7 +169,7 @@ async function runTask(opts: RunTaskOptions): Promise<TaskResult> {
     const visibleIssues = repairableIssues(firstAttempt);
     if (firstAttempt.pass || !repair || visibleIssues.length === 0) {
       await judgeFinal(firstAttempt, firstDoc.document);
-      return { taskId: task.id, firstAttempt, final: firstAttempt, documents, usage };
+      return withRendered({ taskId: task.id, firstAttempt, final: firstAttempt, documents, usage });
     }
 
     messages.push(
@@ -164,24 +181,31 @@ async function runTask(opts: RunTaskOptions): Promise<TaskResult> {
     usage.completionTokens += second.usage?.completionTokens ?? 0;
     const secondDoc = toDocument(second.text);
     documents.push(secondDoc.document);
-    const repairAttempt = scoreDocument(task, secondDoc.document);
+    const repairAttempt = scoreDocument(task, secondDoc.document, validator);
     if (secondDoc.error) {
       repairAttempt.pass = false;
       repairAttempt.jsonValid = false;
       repairAttempt.issues.unshift(secondDoc.error);
     }
     await judgeFinal(repairAttempt, secondDoc.document);
-    return { taskId: task.id, firstAttempt, repairAttempt, final: repairAttempt, documents, usage };
+    return withRendered({
+      taskId: task.id,
+      firstAttempt,
+      repairAttempt,
+      final: repairAttempt,
+      documents,
+      usage,
+    });
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause);
-    return {
+    return withRendered({
       taskId: task.id,
       firstAttempt: failedMetrics(`generation failed: ${message}`),
       final: failedMetrics(`generation failed: ${message}`),
       documents,
       usage,
       error: message,
-    };
+    });
   }
 }
 
@@ -189,6 +213,8 @@ export interface RunEvalsOptions {
   repair?: boolean;
   concurrency?: number;
   modes?: EvalMode[];
+  /** Payload syntaxes to A/B; when set, runs chart tasks only, direct mode. */
+  formats?: string[];
   judge?: ModelAdapter;
   log?: (line: string) => void;
 }
@@ -200,23 +226,47 @@ export async function runEvals(
 ): Promise<EvalRun> {
   const repair = options.repair ?? true;
   const concurrency = options.concurrency ?? 4;
-  const modes = options.modes ?? ["direct"];
   const log = options.log ?? (() => {});
-  const system = systemPrompt();
   const models: ModelResult[] = [];
 
+  // Each variant is one row: a mode (direct/structured) or a payload format.
+  const variants: { mode: EvalMode; format?: ChartFormat; label: string }[] = options.formats
+    ? options.formats.map((id) => {
+        const format = getFormat(id);
+        return { mode: "direct" as const, format, label: ` [${format.id}]` };
+      })
+    : (options.modes ?? ["direct"]).map((mode) => ({
+        mode,
+        label: mode === "structured" ? " [structured]" : "",
+      }));
+
+  let effectiveTaskIds: string[] = tasks.map((t) => t.id);
+
   for (const adapter of adapters) {
-    for (const mode of modes) {
-      const modeTasks = mode === "structured" ? tasks.filter(structuredApplicable) : tasks;
-      if (modeTasks.length === 0) continue;
-      log(`── ${adapter.id}${mode === "structured" ? " [structured]" : ""}`);
-      const results: TaskResult[] = new Array(modeTasks.length);
+    for (const variant of variants) {
+      const variantTasks =
+        variant.mode === "structured" || variant.format
+          ? tasks.filter(structuredApplicable)
+          : tasks;
+      if (variantTasks.length === 0) continue;
+      if (options.formats) effectiveTaskIds = variantTasks.map((t) => t.id);
+      const system = variant.format ? buildFormatSystemPrompt(variant.format) : systemPrompt();
+      log(`── ${adapter.id}${variant.label}`);
+      const results: TaskResult[] = new Array(variantTasks.length);
       let next = 0;
       async function worker(): Promise<void> {
-        while (next < modeTasks.length) {
+        while (next < variantTasks.length) {
           const index = next++;
-          const task = modeTasks[index]!;
-          const result = await runTask({ adapter, system, task, repair, mode, judge: options.judge });
+          const task = variantTasks[index]!;
+          const result = await runTask({
+            adapter,
+            system,
+            task,
+            repair,
+            mode: variant.mode,
+            format: variant.format,
+            judge: options.judge,
+          });
           results[index] = result;
           const marker = result.final.pass ? "✓" : "✗";
           const repaired = result.repairAttempt ? " (after repair)" : "";
@@ -228,12 +278,17 @@ export async function runEvals(
           );
         }
       }
-      await Promise.all(Array.from({ length: Math.min(concurrency, modeTasks.length) }, worker));
-      models.push({ model: adapter.id, mode, tasks: results });
+      await Promise.all(Array.from({ length: Math.min(concurrency, variantTasks.length) }, worker));
+      models.push({
+        model: adapter.id,
+        mode: variant.mode,
+        ...(variant.format ? { format: variant.format.id } : {}),
+        tasks: results,
+      });
     }
   }
 
-  return { startedAt: new Date().toISOString(), models, taskIds: tasks.map((t) => t.id) };
+  return { startedAt: new Date().toISOString(), models, taskIds: effectiveTaskIds };
 }
 
 // ---------------------------------------------------------------------------
@@ -246,6 +301,7 @@ interface CliArgs {
   tasks: string[];
   repair: boolean;
   mode: "direct" | "structured" | "both";
+  formats?: string[];
   judge?: string;
   listModels?: string | true;
   out: string;
@@ -274,6 +330,9 @@ function parseArgs(argv: string[]): CliArgs {
         break;
       case "--mode":
         args.mode = argv[++i] as CliArgs["mode"];
+        break;
+      case "--formats":
+        args.formats = (argv[++i] ?? "").split(",").filter(Boolean);
         break;
       case "--judge":
         args.judge = argv[++i]!;
@@ -305,10 +364,14 @@ async function main(): Promise<void> {
 
   const tasks = getTasks(args.tasks);
   const modes: EvalMode[] = args.mode === "both" ? ["direct", "structured"] : [args.mode];
+  if (args.formats && args.mode !== "direct") {
+    throw new Error("--formats runs are direct-mode only; drop --mode");
+  }
   let adapters: ModelAdapter[];
   let judge: ModelAdapter | undefined;
 
   if (args.adapter === "mock") {
+    if (args.formats) throw new Error("--formats requires --adapter openrouter");
     adapters = [mockAdapter("perfect"), mockAdapter("sloppy")];
   } else {
     const apiKey = process.env.OPENROUTER_API_KEY;
@@ -326,7 +389,13 @@ async function main(): Promise<void> {
     if (args.judge) judge = new OpenRouterAdapter(args.judge, apiKey, { temperature: 0 });
   }
 
-  const run = await runEvals(adapters, tasks, { repair: args.repair, modes, judge, log: console.log });
+  const run = await runEvals(adapters, tasks, {
+    repair: args.repair,
+    modes,
+    formats: args.formats,
+    judge,
+    log: console.log,
+  });
 
   mkdirSync(args.out, { recursive: true });
   const stamp = run.startedAt.replace(/[:.]/g, "-");

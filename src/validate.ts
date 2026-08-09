@@ -26,9 +26,6 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
  * evals and repair loops need them to be visible.
  */
 export function validateChart(source: string): ChartValidationResult {
-  const errors: ValidationIssue[] = [];
-  const warnings: ValidationIssue[] = [];
-
   let payload: unknown;
   try {
     payload = JSON.parse(source);
@@ -37,15 +34,25 @@ export function validateChart(source: string): ChartValidationResult {
     return {
       ok: false,
       errors: [{ code: "invalid-json", message: `payload is not well-formed JSON: ${message}` }],
-      warnings,
+      warnings: [],
       partial: {},
     };
   }
+  return validateChartValue(payload);
+}
+
+/**
+ * Validate an already-parsed chart payload. Exists so alternative payload
+ * syntaxes (parsed elsewhere) share the exact same semantic validation.
+ */
+export function validateChartValue(payload: unknown): ChartValidationResult {
+  const errors: ValidationIssue[] = [];
+  const warnings: ValidationIssue[] = [];
 
   if (!isPlainObject(payload)) {
     return {
       ok: false,
-      errors: [{ code: "not-an-object", message: "payload must be a JSON object" }],
+      errors: [{ code: "not-an-object", message: "payload must be an object" }],
       warnings,
       partial: {},
     };

@@ -23,11 +23,14 @@ interface TaskResult {
   repairAttempt?: MetricResults;
   final: MetricResults;
   documents: string[];
+  /** Format runs: chart fences transcoded to JSON for rendering. */
+  rendered?: string[];
   error?: string;
 }
 interface ModelResult {
   model: string;
   mode?: "direct" | "structured";
+  format?: string;
   tasks: TaskResult[];
 }
 interface EvalRun {
@@ -71,7 +74,13 @@ function disposeMounted(): void {
 }
 
 function modelLabel(m: ModelResult): string {
+  if (m.format) return `${m.model} [${m.format}]`;
   return m.mode === "structured" ? `${m.model} [structured]` : m.model;
+}
+
+/** Renderable version of an attempt: format runs render the transcoded doc. */
+function renderableDoc(t: TaskResult, index: number): string | undefined {
+  return t.rendered?.[index] ?? t.documents[index];
 }
 
 function chipFor(t: TaskResult | undefined): { cls: string; text: string; title: string } {
@@ -147,7 +156,7 @@ async function renderCompare(): Promise<void> {
     entries
       .map(({ m, mi, t }) => {
         const chip = chipFor(t);
-        const doc = t.documents[t.documents.length - 1];
+        const doc = renderableDoc(t, t.documents.length - 1);
         const note = !t.final.pass
           ? escapeHtml(t.error ?? t.final.issues[0] ?? "failed")
           : t.final.summaryConsistent === false
@@ -169,7 +178,7 @@ async function renderCompare(): Promise<void> {
 
   for (const { mi, t } of entries) {
     const el = document.getElementById(`cmp-doc-${mi}`);
-    const doc = t.documents[t.documents.length - 1];
+    const doc = renderableDoc(t, t.documents.length - 1);
     if (el && doc !== undefined) {
       mountedList.push(await renderDocumentInto(el, doc));
     }
@@ -231,8 +240,9 @@ async function renderDetail(): Promise<void> {
     });
   });
 
-  if (source !== undefined) {
-    mountedList.push(await renderDocumentInto(document.getElementById("doc")!, source));
+  const renderable = renderableDoc(task, attemptIndex);
+  if (renderable !== undefined) {
+    mountedList.push(await renderDocumentInto(document.getElementById("doc")!, renderable));
   }
 }
 

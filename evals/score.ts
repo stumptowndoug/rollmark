@@ -1,7 +1,25 @@
 import { compileToECharts } from "../src/compile-echarts.js";
 import { renderRollmark } from "../src/render.js";
-import type { ChartSpec, RollmarkBlock } from "../src/types.js";
+import { validateChart } from "../src/validate.js";
+import type { ChartSpec, ChartValidationResult, RollmarkBlock } from "../src/types.js";
+import { PARSE_ERROR_CODES } from "./formats.js";
 import type { EvalTask } from "./tasks.js";
+
+export type ChartValidator = (source: string) => ChartValidationResult;
+
+/** Chart specs from a document under a given payload syntax (for the judge). */
+export function chartSpecs(document: string, validate: ChartValidator = validateChart): ChartSpec[] {
+  try {
+    return renderRollmark(document)
+      .blocks.filter((b) => b.type === "chart")
+      .flatMap((b) => {
+        const result = validate(b.source);
+        return result.ok ? [result.spec] : [];
+      });
+  } catch {
+    return [];
+  }
+}
 
 /**
  * Per-attempt metric results. `null` means not applicable to this task
@@ -126,7 +144,11 @@ function fidelityOk(
   return { ok: true };
 }
 
-export function scoreDocument(task: EvalTask, document: string): MetricResults {
+export function scoreDocument(
+  task: EvalTask,
+  document: string,
+  validate: ChartValidator = validateChart,
+): MetricResults {
   const issues: string[] = [];
   let blocks: RollmarkBlock[] = [];
   let markdownValid = true;
@@ -181,19 +203,20 @@ export function scoreDocument(task: EvalTask, document: string): MetricResults {
     return na;
   }
 
-  na.warningCount = charts.reduce((n, c) => n + (c.type === "chart" ? c.warnings.length : 0), 0);
+  const results = charts.map((c) => validate(c.source));
+  na.warningCount = results.reduce((n, r) => n + r.warnings.length, 0);
 
-  na.jsonValid = charts.every(
-    (c) => c.type === "chart" && !(c.errors ?? []).some((e) => e.code === "invalid-json"),
+  na.jsonValid = results.every(
+    (r) => r.ok || !r.errors.some((e) => PARSE_ERROR_CODES.has(e.code)),
   );
-  if (!na.jsonValid) issues.push("a chart payload is not well-formed JSON");
+  if (!na.jsonValid) issues.push("a chart payload could not be parsed");
 
-  const specs = charts.flatMap((c) => (c.type === "chart" && c.spec ? [c.spec] : []));
+  const specs = results.flatMap((r) => (r.ok ? [r.spec] : []));
   na.schemaValid = specs.length === charts.length;
   if (!na.schemaValid) {
-    for (const c of charts) {
-      if (c.type === "chart" && c.errors) {
-        for (const e of c.errors) issues.push(`chart validation error: ${e.message}`);
+    for (const r of results) {
+      if (!r.ok) {
+        for (const e of r.errors) issues.push(`chart validation error: ${e.message}`);
       }
     }
     return na;

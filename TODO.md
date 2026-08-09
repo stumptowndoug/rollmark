@@ -18,11 +18,14 @@
 
 ## 🚧 In Progress
 
+- [ ] Eval: A/B chart payload syntaxes (json vs dsl vs yaml vs parallel arrays) across the model spread
+
 ## ✅ Done
 
-- [x] Eval results viewer (`playground/results.html`) — verified in browser
+- [x] Eval results viewer (`playground/results.html`, `npm run viewer`) — verified in browser
   - [x] run picker over `evals/results/*.json`; model × task chip matrix (✓/↻/⚠/✗)
   - [x] cell detail: metric chips, judge verdicts, rendered document, attempt-1 vs after-repair tabs, raw source
+  - [x] compare mode: click a task column header → every model's output for that task on one page
 
 - [x] Eval: compare direct generation vs. structured output + serializer
   - [x] verdict: direct is near-ceiling and stays the default; structured helps weak models with syntax but degrades summary honesty (see `evals/FINDINGS.md`)

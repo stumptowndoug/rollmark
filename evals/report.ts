@@ -2,6 +2,11 @@ import type { EvalRun, ModelResult } from "./run.js";
 import { METRIC_KEYS } from "./score.js";
 import type { MetricResults } from "./score.js";
 
+function rowLabel(model: ModelResult): string {
+  if (model.format) return `${model.model} [${model.format}]`;
+  return model.mode === "structured" ? `${model.model} [structured]` : model.model;
+}
+
 function pct(passed: number, applicable: number): string {
   if (applicable === 0) return "—";
   return `${Math.round((passed / applicable) * 100)}%`;
@@ -20,7 +25,7 @@ function summarizeModel(model: ModelResult): Record<string, string> {
   const repairsWon = repairsTried.filter((t) => t.final.pass);
   const tokens = model.tasks.reduce((n, t) => n + t.usage.completionTokens, 0);
   return {
-    model: model.mode === "structured" ? `${model.model} [structured]` : model.model,
+    model: rowLabel(model),
     firstPass: pct(firsts.filter((r) => r.pass).length, firsts.length),
     finalPass: pct(finals.filter((r) => r.pass).length, finals.length),
     repairSuccess: pct(repairsWon.length, repairsTried.length),
@@ -53,7 +58,7 @@ export function toMarkdownReport(run: EvalRun): string {
     m.tasks
       .filter((t) => !t.final.pass || t.final.summaryConsistent === false)
       .map((t) => ({
-        model: m.mode === "structured" ? `${m.model} [structured]` : m.model,
+        model: rowLabel(m),
         task: t.taskId,
         issues: t.final.issues,
         error: t.error,
