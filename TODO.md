@@ -2,6 +2,14 @@
 
 ## 📋 Backlog
 
+- [ ] App-level color overrides (consumer API, never model-facing)
+  - [ ] `renderChartSVG` / `mountRollmarkDocument` accept custom series palette + structural colors, per theme (light/dark can differ)
+  - [ ] colors baked into the SVG so overrides work in every context (email, PDF, `<img>`)
+  - [ ] chart DSL/spec unchanged — models still can't touch color; document the boundary
+- [ ] Built-in palette variations (a standard handful to choose by name)
+  - [ ] e.g. current default (Tableau-10-ish), a colorblind-safe set (Okabe–Ito), a muted/editorial set, a monochrome/sequential set
+  - [ ] each validated for light + dark backgrounds; selected via option (`palette: "muted"`), custom array still wins
+  - [ ] gallery script gains a palette dimension for visual review
 - [ ] Proper hover tooltips (instant, themed, edge-clamped) in the mount layer
   - [ ] fully automatic from chart data — zero model/spec/prompt involvement; native `<title>` stays as the fallback for static contexts
   - [ ] scope: per-mark hover only; shared crosshair tooltips deliberately deferred
