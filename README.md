@@ -65,7 +65,9 @@ npm run build   # tsc → dist/
 
 ```sh
 npm run build                      # playground consumes the built package
-cd playground && npm install && npm run dev
+npm --prefix playground install    # first time only
+npm run playground                 # editor at /index.html
+npm run viewer                     # eval viewer, opens /results.html
 ```
 
 Left pane is the Markdown source, right pane renders it live: ECharts for `chart` blocks, Mermaid (`securityLevel: strict`) for diagrams, the SPEC §4 fallback card for invalid charts, with light/dark following the system theme.
