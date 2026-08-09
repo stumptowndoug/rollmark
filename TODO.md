@@ -2,6 +2,8 @@
 
 ## 📋 Backlog
 
+- [ ] Decide v1 canonical payload syntax (json vs dsl) based on `evals/FINDINGS.md` §Payload syntax A/B — Doug's call
+
 - [ ] Phase 2: Springroll integration behind thin API (`<Rollmark content={...} />`)
 - [ ] Phase 2: streaming-aware rendering (skeleton while fence open, upgrade on close)
 - [ ] Phase 2: static export adapter (SVG/PNG) for PDF and email
@@ -18,9 +20,11 @@
 
 ## 🚧 In Progress
 
-- [ ] Eval: A/B chart payload syntaxes (json vs dsl vs yaml vs parallel arrays) across the model spread
-
 ## ✅ Done
+
+- [x] Eval: A/B chart payload syntaxes (json / dsl / yaml / arrays), 9 models × 10 tasks
+  - [x] dsl matches json reliability at −34% tokens after one orientation rule (verified 16/16 re-test)
+  - [x] yaml dominated; arrays riskiest (unvalidatable shape errors); details in FINDINGS.md
 
 - [x] Eval results viewer (`playground/results.html`, `npm run viewer`) — verified in browser
   - [x] run picker over `evals/results/*.json`; model × task chip matrix (✓/↻/⚠/✗)

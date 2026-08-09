@@ -238,6 +238,7 @@ date | visitors
 
 Format rules:
 - The first table column is the x-axis; every additional column is a series (1–8). Column headers are the labels.
+- Each data row is ONE x-axis entry — one date or one category. For category comparisons the categories go down the first column, one per row (e.g. \`channel | visitors\` with a row per channel) — never across the header.
 - Include \`x-type: temporal\` only when x values are ISO 8601 dates (like 2026-08-01); omit it for categories.
 - Series cells are numbers; leave a cell empty for a missing value.
 ${SHARED_RULES}`,
@@ -289,7 +290,8 @@ Visitors: 1240, 1380, 1510
 \`\`\`
 
 Format rules:
-- The \`x:\` line holds the axis values. Every other \`Name: v1, v2, ...\` line is one series (1–8); the name is the label.
+- The \`x:\` line holds the axis values — the dates OR the category names (e.g. \`x: Billing, Onboarding, API\`). Every other \`Name: v1, v2, ...\` line is one measured series (1–8); the name is the label.
+- Never write one line per category — categories belong on the \`x:\` line, and each series line holds that measure's value for every x entry.
 - Series values align with the x values by position and must have the same count; write null for a missing value.
 - Include \`x-type: temporal\` only when x values are ISO 8601 dates; omit it for categories.
 ${SHARED_RULES}`,

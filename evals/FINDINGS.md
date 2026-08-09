@@ -68,6 +68,45 @@ and lessons worth keeping.
    qwen 1/1). Hidden metrics (fidelity, chart choice) are deliberately
    never fed back, so they stay honest measures of first-shot quality.
 
+## Payload syntax A/B (August 9)
+
+Four surface syntaxes over the same semantic model, 9 models × 10 chart
+tasks each, judge on. Full table in `results/run-2026-08-09T16-12-11-*`.
+
+| Format | Avg first-pass | Avg output tokens | Notes |
+|---|---:|---:|---|
+| json (baseline) | 97.8% | 6,313 | 100% final everywhere after repair |
+| dsl (front-matter + pipe table) | 96.7% → ~100% after orientation rule | 4,187 (−34%) | cheapest; markdown-native |
+| yaml (same schema) | 96.7% | 5,453 (−14%) | indentation slips; no advantage over json |
+| arrays (parallel, mermaid-style) | 95.6% → higher after rule | 4,578 (−27%) | shape errors can't be validated, only fidelity-detected |
+
+Lessons:
+
+7. **All four syntaxes are viable at the top tier** — strong models are
+   essentially format-agnostic (100% across the board). Format choice is
+   decided by the cheap-model tier, token cost, and failure *modes*.
+8. **Row-oriented formats invite transposition on categorical data.**
+   gpt-4o-mini wrote DSL tables with categories across the header;
+   mistral wrote one `Category: value` line per category in arrays
+   format. Data preserved, chart shape wrong — and because fidelity
+   failures are hidden from the repair loop, repair can't fix them.
+   One explicit orientation rule in the prompt ("each row is one x-axis
+   entry; categories go down the first column") cured all cases (16/16
+   on re-test). JSON never induces this: row objects force orientation.
+9. **The DSL is the strongest challenger to JSON**: same reliability
+   after the orientation rule, ~1/3 fewer output tokens, best plain-
+   viewer degradation (reads as a labeled table). Its cost: a bespoke
+   parser and no structured-output compatibility. YAML is dominated —
+   no axis where it beats both JSON and DSL. Arrays are cheap but the
+   positional shape is the riskiest under stress and hardest to
+   validate; not recommended as the canonical syntax.
+10. **Shape/orientation errors must be prevented, not repaired** —
+    they're invisible to validation, so they never enter the repair
+    loop. Prompt rules and format design carry that burden.
+11. The judge keeps catching the same *semantic* trap across formats
+    (cat-multi: "Billing had the most resolved" when API's 31 beats
+    Billing's 29) — summary honesty is orthogonal to payload syntax.
+
 ## Method notes
 
 - Scoring leniencies that exist on purpose: months may be encoded as
