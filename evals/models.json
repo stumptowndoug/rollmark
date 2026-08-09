@@ -1,0 +1,14 @@
+{
+  "_comment": "Default OpenRouter model ids spanning an intelligence range. Ids drift over time — verify with `npm run eval -- --list-models <filter>` and adjust. Override per run with --models a,b,c.",
+  "models": [
+    "deepseek/deepseek-v4-flash-0731",
+    "xiaomi/mimo-v2.5",
+    "openai/gpt-5.6-luna",
+    "openai/gpt-4o-mini",
+    "google/gemini-3-flash-preview",
+    "anthropic/claude-sonnet-5",
+    "x-ai/grok-4.5",
+    "mistralai/mistral-small-2603",
+    "qwen/qwen3-8b"
+  ]
+}

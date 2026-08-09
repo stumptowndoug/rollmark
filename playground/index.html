@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rollmark playground</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --border: #d0d4da;
+        --muted: #667085;
+        --fallback-bg: #fff6f5;
+        --fallback-border: #f0b4ad;
+        --code-bg: #f4f5f7;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --border: #3a3f47;
+          --muted: #98a2b3;
+          --fallback-bg: #2a1f1e;
+          --fallback-border: #7a4a44;
+          --code-bg: #23262c;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, sans-serif;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        padding: 0.6rem 1rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: baseline;
+        gap: 0.75rem;
+      }
+      header h1 { font-size: 1rem; margin: 0; }
+      header span { color: var(--muted); font-size: 0.85rem; }
+      main { flex: 1; display: flex; min-height: 0; }
+      #input {
+        width: 42%;
+        min-width: 280px;
+        resize: none;
+        border: none;
+        border-right: 1px solid var(--border);
+        padding: 1rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.8rem;
+        line-height: 1.5;
+        outline: none;
+        background: transparent;
+        color: inherit;
+      }
+      #preview {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem 1.5rem;
+        line-height: 1.55;
+      }
+      #preview pre {
+        background: var(--code-bg);
+        padding: 0.75rem;
+        border-radius: 6px;
+        overflow-x: auto;
+        font-size: 0.8rem;
+      }
+      #preview table { border-collapse: collapse; }
+      #preview td, #preview th { border: 1px solid var(--border); padding: 0.3rem 0.6rem; }
+      .rollmark-block[data-rollmark-block="chart"] { height: 320px; margin: 1rem 0; }
+      .rollmark-block[data-rollmark-block="mermaid"] { margin: 1rem 0; }
+      .rollmark-fallback {
+        border: 1px solid var(--fallback-border);
+        background: var(--fallback-bg);
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        margin: 1rem 0;
+      }
+      .rollmark-fallback-title { font-weight: 600; margin: 0 0 0.25rem; }
+      .rollmark-fallback-summary { margin: 0 0 0.5rem; }
+      .rollmark-fallback-reason { color: var(--muted); font-size: 0.85rem; margin: 0 0 0.5rem; }
+      .rollmark-fallback details summary { cursor: pointer; font-size: 0.85rem; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Rollmark playground</h1>
+      <span>edit Markdown on the left — charts and diagrams render on the right</span>
+    </header>
+    <main>
+      <textarea id="input" spellcheck="false"></textarea>
+      <div id="preview"></div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

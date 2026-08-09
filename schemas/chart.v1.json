@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rollmark.dev/schemas/chart.v1.json",
+  "title": "Rollmark chart block, version 1",
+  "description": "Payload of a Rollmark `chart` fenced block. Describes a quantitative visualization semantically; the renderer owns all visual presentation (colors, fonts, spacing, animation, theme). Producers must preserve source data values exactly. This schema is the producer contract and forbids unknown properties; conforming renderers ignore unknown properties with a warning (SPEC.md §2.3). Two constraints are not expressible in JSON Schema and are validated separately: x.field and every series[].field must appear in at least one data row, and when x.type is \"temporal\" every x value must be an ISO 8601 date or date-time string.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "type", "x", "series", "data"],
+  "properties": {
+    "version": {
+      "description": "Rollmark chart schema version. Must be 1.",
+      "const": 1
+    },
+    "type": {
+      "description": "Chart type.",
+      "enum": ["line", "bar"]
+    },
+    "title": {
+      "description": "Chart title.",
+      "type": "string",
+      "maxLength": 200
+    },
+    "summary": {
+      "description": "One- or two-sentence natural-language description of what the chart shows. Strongly encouraged: it is the text fallback for export targets, the accessible description for screen readers, and the fallback content if rendering fails. Must be consistent with the data.",
+      "type": "string",
+      "maxLength": 500
+    },
+    "x": {
+      "description": "The x-axis encoding.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field"],
+      "properties": {
+        "field": {
+          "description": "Name of the data field providing x values.",
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "description": "Axis label. Defaults to the field name.",
+          "type": "string"
+        },
+        "type": {
+          "description": "\"category\" (default) or \"temporal\". Temporal x values must be ISO 8601 date or date-time strings.",
+          "enum": ["category", "temporal"]
+        }
+      }
+    },
+    "series": {
+      "description": "One entry per line or bar group. Field names must be unique across series.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["field"],
+        "properties": {
+          "field": {
+            "description": "Name of the data field providing y values for this series.",
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "description": "Series label shown in the legend. Defaults to the field name.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "data": {
+      "description": "Inline data rows. Values referenced by x.field must be strings or numbers; values referenced by series[].field must be numbers or null (null renders as a gap, not zero). Rows may contain additional fields; renderers ignore them.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1000,
+      "items": {
+        "type": "object"
+      }
+    }
+  }
+}
