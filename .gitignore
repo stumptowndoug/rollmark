@@ -4,3 +4,4 @@ evals/results/
 *.log
 .DS_Store
 *.tgz
+gallery.html
