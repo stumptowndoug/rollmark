@@ -2,8 +2,8 @@
 
 ## 📋 Backlog
 
-- [ ] `npm publish` when ready (recommend: after Springroll consumes the git dep for a while)
-- [ ] Springroll-side: add `"rollmark": "github:stumptowndoug/rollmark"` and a thin wrapper over `mountRollmarkDocument`
+- [ ] `npm publish` when ready (the v0.1.0 release tarball is the rehearsal artifact)
+- [ ] Springroll-side: depend on the v0.1.0 release tarball URL and wrap `mountRollmarkDocument` (in progress in the Springroll session, branch codex/integrate-rollmark)
 
 - [ ] Phase 2: Springroll integration behind thin API (`<Rollmark content={...} />`)
 - [ ] Phase 2: streaming-aware rendering (skeleton while fence open, upgrade on close)
@@ -22,6 +22,8 @@
 ## 🚧 In Progress
 
 ## ✅ Done
+
+- [x] v0.1.0 GitHub release with packed tarball — unblocks Bun installs (Bun runs git-dep prepare without devDeps, so build-at-install fails there; the tarball ships prebuilt dist with no lifecycle scripts)
 
 - [x] Product-first README: what/why/philosophy in plain language, chart gallery of real renderer output (`npm run build:images`, light+dark via `<picture>`) — verified rendering on GitHub
 
