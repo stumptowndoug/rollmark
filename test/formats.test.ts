@@ -117,11 +117,17 @@ describe("format scoring and transcoding", () => {
     expect(score.dataFidelity).toBe(true);
   });
 
-  it("the same document fails under the json validator (parse error)", () => {
+  it("the same document fails under the strict json validator (parse error)", () => {
     const task = getTasks(["ts-basic"])[0]!;
-    const score = scoreDocument(task, dslDoc);
+    const score = scoreDocument(task, dslDoc, getFormat("json").validate);
     expect(score.pass).toBe(false);
     expect(score.jsonValid).toBe(false);
+  });
+
+  it("the default scorer accepts the canonical DSL", () => {
+    const task = getTasks(["ts-basic"])[0]!;
+    const score = scoreDocument(task, dslDoc);
+    expect(score.pass, score.issues.join("; ")).toBe(true);
   });
 
   it("transcodes chart fences to canonical JSON for rendering", () => {

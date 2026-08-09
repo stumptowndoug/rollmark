@@ -142,6 +142,7 @@ function buildChartSpecs(task: EvalTask): Record<string, unknown>[] {
       type: exp.chartTypes?.[0] ?? "line",
       title: `Chart ${g + 1}`,
       summary: `Values range across ${group[0]!.values.length} points.`,
+      ...(exp.requireStack ? { stack: true } : {}),
       x: { field: "x", ...(exp.temporal ? { type: "temporal" as const } : {}) },
       series: group.map((_, i) => ({ field: `y${i}` })),
       data: xValues.map((x, row) => {

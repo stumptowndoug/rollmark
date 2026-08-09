@@ -24,6 +24,8 @@ export interface EvalExpectation {
   series?: ExpectedSeries[];
   /** Minimum number of chart blocks (default 1 for chart tasks). */
   minCharts?: number;
+  /** The task calls for stacked series (`stack: true`). */
+  requireStack?: boolean;
 }
 
 export interface EvalTask {
@@ -199,6 +201,66 @@ export const TASKS: EvalTask[] = [
       chartTypes: ["line", "bar"],
       xValues: [],
       series: [{ values: [12480, 19020, 22350, 18905] }],
+    },
+  },
+  {
+    id: "pie-share",
+    description: "Shares of a whole that call for a pie chart",
+    request:
+      "Write a short Markdown report on the subscriber mix. Include a chart showing each plan's share of the total.",
+    input: jsonInput([
+      { plan: "Free", subscribers: 9120 },
+      { plan: "Pro", subscribers: 2480 },
+      { plan: "Team", subscribers: 640 },
+    ]),
+    expected: {
+      blockType: "chart",
+      chartTypes: ["pie"],
+      xValues: ["free", "pro", "team"],
+      series: [{ values: [9120, 2480, 640] }],
+    },
+  },
+  {
+    id: "scatter-relation",
+    description: "Relationship between two numeric measures",
+    request:
+      "Write a short Markdown report on these products. Include a chart showing the relationship between price and rating.",
+    input: jsonInput([
+      { price: 9.99, rating: 3.8 },
+      { price: 14.5, rating: 4.1 },
+      { price: 19.99, rating: 4.0 },
+      { price: 24.5, rating: 4.4 },
+      { price: 34.0, rating: 4.6 },
+      { price: 49.99, rating: 4.5 },
+    ]),
+    expected: {
+      blockType: "chart",
+      chartTypes: ["scatter"],
+      xValues: [9.99, 14.5, 19.99, 24.5, 34, 49.99],
+      series: [{ values: [3.8, 4.1, 4, 4.4, 4.6, 4.5] }],
+    },
+  },
+  {
+    id: "stacked-parts",
+    description: "Parts of a whole over time that call for stacked bars",
+    request:
+      "Write a short Markdown report on quarterly revenue. Include a chart of revenue by product line per quarter, stacked so the bar heights show the total.",
+    input: jsonInput([
+      { quarter: "Q1", hardware: 420, software: 310, services: 150 },
+      { quarter: "Q2", hardware: 390, software: 360, services: 175 },
+      { quarter: "Q3", hardware: 455, software: 410, services: 190 },
+      { quarter: "Q4", hardware: 510, software: 465, services: 230 },
+    ]),
+    expected: {
+      blockType: "chart",
+      chartTypes: ["bar", "area"],
+      requireStack: true,
+      xValues: ["q1", "q2", "q3", "q4"],
+      series: [
+        { values: [420, 390, 455, 510] },
+        { values: [310, 360, 410, 465] },
+        { values: [150, 175, 190, 230] },
+      ],
     },
   },
   {

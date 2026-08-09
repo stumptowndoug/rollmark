@@ -1,6 +1,6 @@
-import { compileToECharts } from "../src/compile-echarts.js";
 import { renderRollmark } from "../src/render.js";
-import { validateChart } from "../src/validate.js";
+import { renderChartSVG } from "../src/render-svg.js";
+import { validateChartPayload } from "../src/parse-dsl.js";
 import type { ChartSpec, ChartValidationResult, RollmarkBlock } from "../src/types.js";
 import { PARSE_ERROR_CODES } from "./formats.js";
 import type { EvalTask } from "./tasks.js";
@@ -8,7 +8,10 @@ import type { EvalTask } from "./tasks.js";
 export type ChartValidator = (source: string) => ChartValidationResult;
 
 /** Chart specs from a document under a given payload syntax (for the judge). */
-export function chartSpecs(document: string, validate: ChartValidator = validateChart): ChartSpec[] {
+export function chartSpecs(
+  document: string,
+  validate: ChartValidator = validateChartPayload,
+): ChartSpec[] {
   try {
     return renderRollmark(document)
       .blocks.filter((b) => b.type === "chart")
@@ -147,7 +150,7 @@ function fidelityOk(
 export function scoreDocument(
   task: EvalTask,
   document: string,
-  validate: ChartValidator = validateChart,
+  validate: ChartValidator = validateChartPayload,
 ): MetricResults {
   const issues: string[] = [];
   let blocks: RollmarkBlock[] = [];
@@ -228,6 +231,10 @@ export function scoreDocument(
   if (!na.chartTypeOk) {
     issues.push(`[hidden] chart type ${specs.map((s) => s.type).join(", ")} not among ${task.expected.chartTypes!.join("/")}`);
   }
+  if (task.expected.requireStack && !specs.every((s) => s.stack === true)) {
+    na.chartTypeOk = false;
+    issues.push("[hidden] the task calls for stacked series (stack: true)");
+  }
 
   const fidelity = fidelityOk(task, specs);
   na.dataFidelity = fidelity.ok;
@@ -239,10 +246,9 @@ export function scoreDocument(
 
   na.renderOk = specs.every((s) => {
     try {
-      compileToECharts(s);
-      return true;
+      return renderChartSVG(s).includes("</svg>");
     } catch (cause) {
-      issues.push(`chart failed to compile: ${cause instanceof Error ? cause.message : cause}`);
+      issues.push(`chart failed to render: ${cause instanceof Error ? cause.message : cause}`);
       return false;
     }
   });
