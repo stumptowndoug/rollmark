@@ -2,6 +2,9 @@
 
 ## 📋 Backlog
 
+- [ ] Create GitHub repo, push, add repository/homepage fields to package.json
+- [ ] `npm publish` when ready (name "rollmark" is available; prepublishOnly gates on typecheck+test+build)
+
 - [ ] Phase 2: Springroll integration behind thin API (`<Rollmark content={...} />`)
 - [ ] Phase 2: streaming-aware rendering (skeleton while fence open, upgrade on close)
 - [ ] Phase 2: static export adapter (SVG/PNG) for PDF and email
@@ -18,9 +21,9 @@
 
 ## 🚧 In Progress
 
-- [ ] Package-readiness: publishable package.json, LICENSE, CI workflow, pack verification
-
 ## ✅ Done
+
+- [x] Package-readiness: publishable package.json, LICENSE (MIT), CI workflow (test matrix + pack smoke), 29 kB tarball verified as a consumer
 
 - [x] v1 cleanup: ECharts compiler removed; design docs moved to docs/design/
 - [x] Renderer snapshot tests (7 baselines incl. dark theme) + parser/renderer fuzz tests (88 tests total)
