@@ -2,6 +2,10 @@
 
 ## 📋 Backlog
 
+- [ ] Proper hover tooltips (instant, themed, edge-clamped) in the mount layer
+  - [ ] fully automatic from chart data — zero model/spec/prompt involvement; native `<title>` stays as the fallback for static contexts
+  - [ ] scope: per-mark hover only; shared crosshair tooltips deliberately deferred
+
 - [ ] `npm publish` when ready (the v0.1.0 release tarball is the rehearsal artifact)
 - [ ] Springroll-side: depend on the v0.1.0 release tarball URL and wrap `mountRollmarkDocument` (in progress in the Springroll session, branch codex/integrate-rollmark)
 
