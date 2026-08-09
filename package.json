@@ -52,6 +52,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "eval": "tsx evals/run.ts",
+    "build:images": "tsx scripts/readme-images.ts",
     "playground": "npm --prefix playground run dev",
     "viewer": "npm --prefix playground run dev -- --open /results.html"
   },

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" class="rollmark-chart-svg" role="img" aria-label="Price vs. rating. Higher-priced products loosely track higher ratings." font-family="system-ui, -apple-system, sans-serif">
+<text x="16" y="28" font-size="15" font-weight="600" fill="#e5e7eb">Price vs. rating</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="324" font-size="11" text-anchor="end" fill="#9ca3af">3.8</text>
+<line x1="56" y1="285.5" x2="624" y2="285.5" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="289.5" font-size="11" text-anchor="end" fill="#9ca3af">3.9</text>
+<line x1="56" y1="250.99999999999994" x2="624" y2="250.99999999999994" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="254.99999999999994" font-size="11" text-anchor="end" fill="#9ca3af">4</text>
+<line x1="56" y1="216.50000000000006" x2="624" y2="216.50000000000006" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="220.50000000000006" font-size="11" text-anchor="end" fill="#9ca3af">4.1</text>
+<line x1="56" y1="181.99999999999986" x2="624" y2="181.99999999999986" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="185.99999999999986" font-size="11" text-anchor="end" fill="#9ca3af">4.2</text>
+<line x1="56" y1="147.49999999999997" x2="624" y2="147.49999999999997" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="151.49999999999997" font-size="11" text-anchor="end" fill="#9ca3af">4.3</text>
+<line x1="56" y1="112.99999999999976" x2="624" y2="112.99999999999976" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="116.99999999999976" font-size="11" text-anchor="end" fill="#9ca3af">4.4</text>
+<line x1="56" y1="78.49999999999989" x2="624" y2="78.49999999999989" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="82.49999999999989" font-size="11" text-anchor="end" fill="#9ca3af">4.5</text>
+<line x1="56" y1="44" x2="624" y2="44" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="48" font-size="11" text-anchor="end" fill="#9ca3af">4.6</text>
+<text x="119.11111111111111" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>10</title>10</text>
+<text x="245.33333333333331" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>20</title>20</text>
+<text x="371.55555555555554" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>30</title>30</text>
+<text x="497.77777777777777" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>40</title>40</text>
+<text x="624" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>50</title>50</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#4b5563" stroke-width="1"/>
+<circle cx="118.98488888888889" cy="320" r="4" fill="#4E79A7" fill-opacity="0.85"><title>9.99 · Rating: 3.8</title></circle>
+<circle cx="175.9111111111111" cy="216.50000000000006" r="4" fill="#4E79A7" fill-opacity="0.85"><title>14.5 · Rating: 4.1</title></circle>
+<circle cx="245.2071111111111" cy="250.99999999999994" r="4" fill="#4E79A7" fill-opacity="0.85"><title>19.99 · Rating: 4</title></circle>
+<circle cx="302.1333333333333" cy="112.99999999999976" r="4" fill="#4E79A7" fill-opacity="0.85"><title>24.5 · Rating: 4.4</title></circle>
+<circle cx="422.0444444444445" cy="44" r="4" fill="#4E79A7" fill-opacity="0.85"><title>34 · Rating: 4.6</title></circle>
+<circle cx="623.8737777777778" cy="78.49999999999989" r="4" fill="#4E79A7" fill-opacity="0.85"><title>49.99 · Rating: 4.5</title></circle>
+</svg>

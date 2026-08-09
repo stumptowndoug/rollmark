@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" class="rollmark-chart-svg" role="img" aria-label="Quarterly revenue by product line. Every line grew through the year; software closed most of the gap to hardware by Q4." font-family="system-ui, -apple-system, sans-serif">
+<text x="16" y="28" font-size="15" font-weight="600" fill="#e5e7eb">Quarterly revenue by product line</text>
+<rect x="16" y="39" width="10" height="10" rx="2" fill="#4E79A7"/>
+<text x="31" y="48" font-size="12" fill="#9ca3af">Hardware</text>
+<rect x="101.8" y="39" width="10" height="10" rx="2" fill="#F28E2B"/>
+<text x="116.8" y="48" font-size="12" fill="#9ca3af">Software</text>
+<rect x="187.6" y="39" width="10" height="10" rx="2" fill="#59A14F"/>
+<text x="202.6" y="48" font-size="12" fill="#9ca3af">Services</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="324" font-size="11" text-anchor="end" fill="#9ca3af">0</text>
+<line x1="56" y1="281.2307692307692" x2="624" y2="281.2307692307692" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="285.2307692307692" font-size="11" text-anchor="end" fill="#9ca3af">200</text>
+<line x1="56" y1="242.46153846153845" x2="624" y2="242.46153846153845" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="246.46153846153845" font-size="11" text-anchor="end" fill="#9ca3af">400</text>
+<line x1="56" y1="203.69230769230768" x2="624" y2="203.69230769230768" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="207.69230769230768" font-size="11" text-anchor="end" fill="#9ca3af">600</text>
+<line x1="56" y1="164.9230769230769" x2="624" y2="164.9230769230769" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="168.9230769230769" font-size="11" text-anchor="end" fill="#9ca3af">800</text>
+<line x1="56" y1="126.15384615384615" x2="624" y2="126.15384615384615" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="130.15384615384613" font-size="11" text-anchor="end" fill="#9ca3af">1,000</text>
+<line x1="56" y1="87.38461538461537" x2="624" y2="87.38461538461537" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="91.38461538461537" font-size="11" text-anchor="end" fill="#9ca3af">1,200</text>
+<text x="129.62962962962968" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>Q1</title>Q1</text>
+<text x="269.87654320987656" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>Q2</title>Q2</text>
+<text x="410.1234567901235" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>Q3</title>Q3</text>
+<text x="550.3703703703704" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>Q4</title>Q4</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#4b5563" stroke-width="1"/>
+<rect x="77.03703703703707" y="238.5846153846154" width="105.18518518518519" height="81.4153846153846" fill="#4E79A7"><title>Q1 · Hardware: 420</title></rect>
+<rect x="217.28395061728398" y="244.39999999999998" width="105.18518518518519" height="75.60000000000002" fill="#4E79A7"><title>Q2 · Hardware: 390</title></rect>
+<rect x="357.5308641975309" y="231.8" width="105.18518518518519" height="88.19999999999999" fill="#4E79A7"><title>Q3 · Hardware: 455</title></rect>
+<rect x="497.7777777777778" y="221.13846153846154" width="105.18518518518519" height="98.86153846153846" fill="#4E79A7"><title>Q4 · Hardware: 510</title></rect>
+<rect x="77.03703703703707" y="178.4923076923077" width="105.18518518518519" height="60.09230769230771" fill="#F28E2B"><title>Q1 · Software: 310</title></rect>
+<rect x="217.28395061728398" y="174.61538461538464" width="105.18518518518519" height="69.78461538461535" fill="#F28E2B"><title>Q2 · Software: 360</title></rect>
+<rect x="357.5308641975309" y="152.32307692307694" width="105.18518518518519" height="79.47692307692309" fill="#F28E2B"><title>Q3 · Software: 410</title></rect>
+<rect x="497.7777777777778" y="131" width="105.18518518518519" height="90.13846153846154" fill="#F28E2B"><title>Q4 · Software: 465</title></rect>
+<rect x="77.03703703703707" y="149.4153846153846" width="105.18518518518519" height="29.07692307692308" fill="#59A14F"><title>Q1 · Services: 150</title></rect>
+<rect x="217.28395061728398" y="140.69230769230768" width="105.18518518518519" height="33.92307692307695" fill="#59A14F"><title>Q2 · Services: 175</title></rect>
+<rect x="357.5308641975309" y="115.49230769230769" width="105.18518518518519" height="36.830769230769235" fill="#59A14F"><title>Q3 · Services: 190</title></rect>
+<rect x="497.7777777777778" y="86.41538461538461" width="105.18518518518519" height="44.58461538461539" fill="#59A14F"><title>Q4 · Services: 230</title></rect>
+</svg>

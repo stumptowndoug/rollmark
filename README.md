@@ -1,176 +1,112 @@
 # Rollmark
 
-**Rollmark is a Markdown-based document format — and renderer — for AI-generated reports with charts.**
+**Markdown that carries charts — built for reports written by AI.**
 
-An LLM writes an ordinary Markdown report. Where the report needs a chart, the model writes a small fenced block; where it needs a diagram, it writes a Mermaid block. Rollmark parses the document, validates every chart against a strict semantic contract, and renders the charts with its own opinionated SVG renderer. Anywhere Rollmark isn't installed — GitHub, a text editor, an email client — the same document still reads cleanly, with each chart appearing as a labeled table.
-
-````markdown
-# Weekly acquisition report
-
-Traffic increased **14%** this week, driven primarily by organic search.
+An AI assistant writes a report in ordinary Markdown. Where the report needs a chart, it writes a small text block — readable on its own, like a labeled table. Rollmark turns those blocks into clean, consistent charts:
 
 ```chart
-bar
-title: Visitors by channel
-summary: Organic search led with 4,890 visitors, well ahead of every other channel.
+line
+title: Daily visitors
+summary: Daily visitors grew from 1,240 on Monday to a peak of 1,610 on Saturday.
 
-channel | Visitors
-Organic search | 4890
-Social | 2310
-Direct | 1750
-Referral | 1150
+date | Visitors
+2026-08-03 | 1240
+2026-08-04 | 1380
+2026-08-05 | 1350
+2026-08-06 | 1470
+2026-08-07 | 1510
+2026-08-08 | 1610
+2026-08-09 | 1540
 ```
-````
 
-That block renders as a themed bar chart in Rollmark, and as the readable text above everywhere else.
+…becomes:
 
-Status: **v1, incubating.** Springroll is the first intended consumer. APIs may still move.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/stumptowndoug/rollmark/master/docs/images/hero-dark.svg">
+  <img alt="A line chart of daily visitors rendered by Rollmark" src="https://raw.githubusercontent.com/stumptowndoug/rollmark/master/docs/images/hero-light.svg" width="720">
+</picture>
+
+*(Every chart image in this README is real output from Rollmark's renderer.)*
+
+And in any place that doesn't know Rollmark — GitHub, a text editor, an email preview — the same document stays exactly as readable as the text block above. Nothing ever shows up broken; it just shows up plainer.
 
 ## Why this exists
 
-Getting an LLM to produce a report with charts has a shape problem: full charting languages (Vega-Lite, ECharts configs) are verbose, easy for models to get subtly wrong, and hand the model control over presentation it shouldn't have; raw HTML/SVG output is unauditable and a security liability. Rollmark's answer is a deliberately tiny **semantic** chart language plus a hard rule:
+AI assistants and agents are increasingly the ones writing status reports, analytics summaries, and morning briefs. Text-only reports undersell the data — but every existing way to let a model produce charts fails somewhere:
 
-> **Models set data, chart type, labels, and intent. The renderer sets everything visual.**
+- **Full charting languages** (Vega-Lite, ECharts configs) are verbose and easy for a model to get subtly wrong — and they hand the model control over colors, fonts, and layout, so every report looks different.
+- **Letting the model write HTML or SVG** means unauditable numbers, inconsistent output, and a security problem, since you're injecting model-generated markup into your app.
+- **Screenshots or generated images** can't be checked, edited, re-themed, or read by a screen reader.
 
-There are no color, font, size, or styling options in the format — the renderer owns presentation, so every chart is consistent, theme-aware, and accessible, and the model's only job is to state the data faithfully.
+Rollmark's answer is to make the chart language as small as it can possibly be — small enough that models from 8B parameters up produce it near-perfectly — and to put every visual decision in the renderer instead.
 
-The design is evidence-driven: the repo ships an eval harness that measures, across model families from 8B up, whether models can actually generate the format — validity, **exact data fidelity**, chart-type choice, and whether the prose `summary` tells the truth about the data (LLM-judged). Current baseline: **100% schema validity across all nine tested models, 100% data fidelity, and correct pie/scatter/stacked choices at every tier.** Failure modes discovered by the evals are fed back into the prompt kit; see [`evals/FINDINGS.md`](./evals/FINDINGS.md) for the full history and numbers.
+## The philosophy
+
+1. **Models state facts, not styles.** A chart block contains data, a chart type, labels, and a one-sentence summary. There is no way to express a color, font, or size — the renderer owns all of that, so every chart in your product looks like it belongs there, in light and dark mode, automatically.
+2. **It's still just Markdown.** Every Rollmark document is a valid Markdown document. Where Rollmark isn't installed, charts degrade to readable labeled tables — never to garbage.
+3. **A broken chart never breaks the report.** An invalid chart shows a small card with the chart's own summary sentence and what went wrong; the rest of the document renders normally.
+4. **The numbers must be checkable.** Chart data lives as plain text in the document, so it can be validated, audited, exported — and the format is designed so models preserve source numbers *exactly* (and this is measured, see below).
+5. **Trust nothing.** Documents are treated as untrusted input: raw HTML is neutralized, diagrams render in Mermaid's strict security mode, and the parser is fuzz-tested to never crash.
+
+## What models can write
+
+Five chart types, one small text format — plus [Mermaid](https://mermaid.js.org/) blocks for diagrams and flows:
+
+| | |
+|---|---|
+| **Comparisons** — `bar`<br><br><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/stumptowndoug/rollmark/master/docs/images/bar-dark.svg"><img alt="Grouped bar chart" src="https://raw.githubusercontent.com/stumptowndoug/rollmark/master/docs/images/bar-light.svg"></picture> | **Parts of a whole over time** — `bar` + `stack: true`<br><br><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/stumptowndoug/rollmark/master/docs/images/stacked-dark.svg"><img alt="Stacked bar chart" src="https://raw.githubusercontent.com/stumptowndoug/rollmark/master/docs/images/stacked-light.svg"></picture> |
+| **Shares** — `pie`<br><br><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/stumptowndoug/rollmark/master/docs/images/donut-dark.svg"><img alt="Donut chart" src="https://raw.githubusercontent.com/stumptowndoug/rollmark/master/docs/images/donut-light.svg"></picture> | **Relationships** — `scatter`<br><br><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/stumptowndoug/rollmark/master/docs/images/scatter-dark.svg"><img alt="Scatter plot" src="https://raw.githubusercontent.com/stumptowndoug/rollmark/master/docs/images/scatter-light.svg"></picture> |
+| **Magnitude over time** — `area` + `stack: true`<br><br><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/stumptowndoug/rollmark/master/docs/images/area-dark.svg"><img alt="Stacked area chart" src="https://raw.githubusercontent.com/stumptowndoug/rollmark/master/docs/images/area-light.svg"></picture> | **Trends** — `line` (see above)<br><br>Dates written as `2026-08-01` become a proper time axis automatically. Empty cells become gaps, never zeroes. |
+
+The rules a model needs fit in one short prompt snippet — shipped ready to paste in [`prompt-kit/`](./prompt-kit/), including a `summary:` line on every chart. That summary is what appears in email and plain-text versions, what screen readers describe, and what shows if a chart can't render — so a Rollmark report never loses its meaning, only its pixels.
 
 ## How it works
 
-```text
-Markdown source (model output)
-        │
-        ▼
-markdown-it + rollmarkPlugin      recognizes ```chart and ```mermaid fences
-        │
-        ▼
-Chart DSL parser + validator      → ChartSpec (or a structured error)
-        │
-        ▼
-renderChartSVG(spec, theme)       Rollmark's own renderer: d3 micro-modules
-        │                         for the math, Rollmark for the opinions
-        ▼
-Static SVG                        same code path in browser and on server
-```
+1. **A model writes the report** — ordinary Markdown, with chart blocks where charts belong, guided by the prompt snippet.
+2. **Rollmark parses and validates** — every chart block is checked against the format's rules (types, limits, the data actually containing what the chart references). Invalid ones become graceful fallback cards, not broken pages.
+3. **Rollmark renders** — its own SVG renderer draws every chart with one consistent editorial style: typography, spacing, palette, light/dark themes, accessibility labels. The same renderer runs in the browser and on a server, so a PDF or email export is the identical output.
 
-Key properties:
+## Does it actually work with real models?
 
-- **Every document is valid Markdown.** Unsupported viewers degrade to readable code blocks.
-- **Failure is local.** An invalid chart renders as a fallback card (title + summary + reason + collapsible source); the rest of the document is untouched.
-- **Untrusted by default.** Raw HTML is escaped, Mermaid runs with `securityLevel: strict`, chart payloads are declarative data with hard size limits, and the parser is fuzz-tested to never throw.
-- **The renderer is DOM-free.** `renderChartSVG` returns an SVG string, so server-side rendering — email, PDF, static export — is the identical call.
+Measured, not assumed — the repo includes an evaluation harness that runs real models (nine of them, from 8B-parameter to frontier tier) through report-writing tasks and scores the results. Current baseline:
 
-## Quick start
+- **100% of chart blocks parse and validate**, across all nine models.
+- **100% data fidelity** — no model altered, rounded, invented, or dropped a single number, including deliberately messy inputs.
+- Models **choose the right chart type** — pies for shares, scatter for relationships, stacked bars from a prose description — at every size tier.
+- An LLM judge checks every chart's summary sentence against its data, and catches models claiming "steady increase" over data with a dip.
 
-Not yet on npm; consume it as a file/git dependency (`"rollmark": "file:../rollmark"` or a git URL), or work in this repo directly.
+Every failure mode the evals have found became a rule in the prompt kit — the numbers and the full story live in [`evals/FINDINGS.md`](./evals/FINDINGS.md).
 
-In the browser, one call does everything — markdown, chart SVGs, mermaid mounting, fallbacks:
+## For developers
 
 ```ts
-import mermaid from "mermaid"; // optional; bring your own for diagram blocks
+import mermaid from "mermaid"; // optional, for diagram blocks
 import { mountRollmarkDocument } from "rollmark";
 
-const mounted = await mountRollmarkDocument(container, markdownSource, {
-  theme: "auto",   // follows prefers-color-scheme; or "light" / "dark"
-  mermaid,         // initialized with securityLevel: "strict" for you
+await mountRollmarkDocument(container, markdownFromYourModel, {
+  theme: "auto",   // follows the user's light/dark preference
+  mermaid,
 });
-// later: mounted.dispose()
 ```
 
-For servers or custom pipelines, use the layers directly:
+That's the whole browser integration. On a server, `renderRollmark()` and `renderChartSVG()` give you the HTML and SVG strings directly — no DOM required.
 
-```ts
-import { renderRollmark, renderChartSVG } from "rollmark";
+Not yet on npm; consume as a git dependency: `"rollmark": "github:stumptowndoug/rollmark"`.
 
-const { html, blocks } = renderRollmark(markdownSource);
-// html: the document with a placeholder div per visual block
-// blocks: each block's validated ChartSpec (or its errors), by id
-
-for (const block of blocks) {
-  if (block.type === "chart" && block.spec) {
-    const svg = renderChartSVG(block.spec, { theme: "dark" }); // SVG string, no DOM needed
-  }
-}
-```
-
-Invalid charts never reach `block.spec` — the plugin renders their fallback card directly into `html`, so a broken chart degrades gracefully with zero client-side work.
-
-To make a *model* produce Rollmark, use the ready-made system-prompt snippet and few-shot examples in [`prompt-kit/`](./prompt-kit/) — the rules in it are load-bearing (each one prevents a failure mode observed in evals).
-
-## The chart language
-
-Five types — `line`, `bar`, `area`, `scatter`, `pie` — plus `stack: true` for stacked bars/areas. The first table column is the x-axis, every other column is a series, headers are the labels, empty cells are gaps, ISO dates automatically produce a time axis, and `summary:` is the always-present honest description of what the chart shows.
-
-Full guide: [`docs/chart-dsl.md`](./docs/chart-dsl.md). Normative spec: [`SPEC.md`](./SPEC.md). A JSON payload shape is also accepted (for structured-output pipelines): [`schemas/chart.v1.json`](./schemas/chart.v1.json).
-
-## API surface
-
-| Export | What it does |
+| To go deeper | |
 |---|---|
-| `mountRollmarkDocument(el, source, opts?)` | Browser one-call mount: markdown + charts + mermaid + fallbacks |
-| `renderRollmark(source, md?)` | Markdown → `{ html, blocks }`; the parsing/HTML layer |
-| `rollmarkPlugin` | The markdown-it plugin, for use with your own markdown-it instance |
-| `renderChartSVG(spec, { theme?, width?, height? })` | ChartSpec → static SVG string (browser or server) |
-| `validateChartPayload(source)` | Validate a fence payload (DSL or JSON) → `ChartSpec` or structured errors |
-| `parseChartDsl(source)` / `validateChart(source)` / `validateChartValue(value)` | The individual syntax/semantic layers |
-| `renderChartFallback` / `renderMermaidFallback` | The SPEC §4 failure cards as HTML |
-| `LIMITS`, types (`ChartSpec`, `RollmarkBlock`, …) | Contract constants and TypeScript types |
+| Write chart blocks (or prompt a model to) | [`docs/chart-dsl.md`](./docs/chart-dsl.md) |
+| The prompt snippet + few-shot examples | [`prompt-kit/`](./prompt-kit/) |
+| The formal format specification | [`SPEC.md`](./SPEC.md) |
+| Example reports | [`examples/`](./examples/) |
+| Eval results and lessons | [`evals/FINDINGS.md`](./evals/FINDINGS.md) |
+| Live editor + eval browser | `npm run playground` / `npm run viewer` |
+| Design history | [`docs/design/`](./docs/design/) |
 
-## Playground and eval viewer
+Development: `npm install && npm test` (93 tests incl. SVG snapshots and fuzzing), `npm run build`, `npm run build:images` regenerates the README charts from source.
 
-```sh
-npm run build                      # playground consumes the built package
-npm --prefix playground install    # first time only
-npm run playground                 # live editor: Markdown left, rendered report right
-npm run viewer                     # eval results browser (see below)
-```
+## Status
 
-## Evals
+**v1, incubating.** The format is deliberately small and grows slowly: nothing is added unless real models can produce it reliably (the eval gate), and presentation options are never added at all. Reserved for the future: more block types (`metrics`, `timeline`, `status`), a Vega-Lite escape hatch for power users, and streaming-aware rendering.
 
-The eval harness is a first-class part of the project — the format's reliability claims are measured, not asserted.
-
-```sh
-export OPENROUTER_API_KEY=sk-or-...
-npm run eval                                   # 15 tasks × models in evals/models.json
-npm run eval -- --adapter mock                 # offline smoke test of the harness
-npm run eval -- --judge google/gemini-3-flash-preview     # + summary-honesty judge
-npm run eval -- --formats json,dsl             # A/B payload syntaxes
-npm run eval -- --mode both                    # direct vs structured-output generation
-npm run eval -- --list-models qwen             # check current OpenRouter model ids
-```
-
-Per model it measures the validity chain (fence → parse → schema → render), **data fidelity** (were the source numbers preserved exactly?), chart-type appropriateness, chart restraint (a task where the right answer is *no* chart), first-pass vs. after-repair success (validation errors are fed back once; hidden metrics never leak into the repair prompt), and summary-vs-data consistency via an LLM judge.
-
-Reports land in `evals/results/`; `npm run viewer` gives a model × task matrix where every cell renders the model's actual output, with attempt-1 vs. after-repair tabs and a compare-all-models view per task. Accumulated conclusions: [`evals/FINDINGS.md`](./evals/FINDINGS.md).
-
-## Repository layout
-
-| Path | Contents |
-|---|---|
-| `SPEC.md` | The normative v1 format specification |
-| `src/` | The package: markdown-it plugin, DSL parser, validator, SVG renderer, fallbacks |
-| `docs/` | `chart-dsl.md` authoring guide; `design/` holds the original design explorations |
-| `prompt-kit/` | System-prompt snippet + few-shot examples for producing models |
-| `schemas/` | JSON Schema for the JSON payload alternate |
-| `examples/` | Example reports, validated in CI |
-| `evals/` | Model eval harness, tasks, findings |
-| `playground/` | Live editor + eval results viewer (Vite) |
-| `TODO.md` | Project board |
-
-## Development
-
-```sh
-npm install
-npm test           # vitest: 88 tests incl. SVG snapshots and parser fuzzing
-npm run typecheck
-npm run build      # tsc → dist/
-```
-
-## Scope and roadmap
-
-Deliberately **in** v1: the five chart types, stacking, temporal inference, static themed SVG, graceful fallback, the eval harness.
-
-Deliberately **out** (until evidence demands them): interactivity/tooltips beyond native `<title>` hover, streaming-aware rendering (v1 is non-streaming by spec; the design doesn't foreclose it), presentation options of any kind, additional block types (`metrics`, `status`, `timeline`, `progress` are reserved), external data references, and a `vega-lite` escape-hatch fence for power users.
-
-The growth rule: nothing enters the format without passing the eval gate on the cheap-model tier.
+MIT licensed.

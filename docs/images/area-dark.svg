@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" class="rollmark-chart-svg" role="img" aria-label="Overnight requests by service (thousands). The API carried most overnight traffic; jobs spiked during the 04:00 batch window." font-family="system-ui, -apple-system, sans-serif">
+<text x="16" y="28" font-size="15" font-weight="600" fill="#e5e7eb">Overnight requests by service (thousands)</text>
+<rect x="16" y="39" width="10" height="10" rx="2" fill="#4E79A7"/>
+<text x="31" y="48" font-size="12" fill="#9ca3af">API</text>
+<rect x="68.8" y="39" width="10" height="10" rx="2" fill="#F28E2B"/>
+<text x="83.8" y="48" font-size="12" fill="#9ca3af">Auth</text>
+<rect x="128.2" y="39" width="10" height="10" rx="2" fill="#59A14F"/>
+<text x="143.2" y="48" font-size="12" fill="#9ca3af">Jobs</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="324" font-size="11" text-anchor="end" fill="#9ca3af">0</text>
+<line x1="56" y1="281.2307692307692" x2="624" y2="281.2307692307692" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="285.2307692307692" font-size="11" text-anchor="end" fill="#9ca3af">20</text>
+<line x1="56" y1="242.46153846153845" x2="624" y2="242.46153846153845" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="246.46153846153845" font-size="11" text-anchor="end" fill="#9ca3af">40</text>
+<line x1="56" y1="203.69230769230768" x2="624" y2="203.69230769230768" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="207.69230769230768" font-size="11" text-anchor="end" fill="#9ca3af">60</text>
+<line x1="56" y1="164.9230769230769" x2="624" y2="164.9230769230769" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="168.9230769230769" font-size="11" text-anchor="end" fill="#9ca3af">80</text>
+<line x1="56" y1="126.15384615384615" x2="624" y2="126.15384615384615" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="130.15384615384613" font-size="11" text-anchor="end" fill="#9ca3af">100</text>
+<line x1="56" y1="87.38461538461537" x2="624" y2="87.38461538461537" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="91.38461538461537" font-size="11" text-anchor="end" fill="#9ca3af">120</text>
+<text x="127" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>00:00</title>00:00</text>
+<text x="269" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>02:00</title>02:00</text>
+<text x="411" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>04:00</title>04:00</text>
+<text x="553" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>06:00</title>06:00</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#4b5563" stroke-width="1"/>
+<path d="M127,143.6L269,157.169L411,168.8L553,135.846L553,320L411,320L269,320L127,320Z" fill="#4E79A7" fill-opacity="0.75"><title>API</title></path>
+<path d="M127,100.954L269,120.338L411,135.846L553,89.323L553,135.846L411,168.8L269,157.169L127,143.6Z" fill="#F28E2B" fill-opacity="0.75"><title>Auth</title></path>
+<path d="M127,85.446L269,102.892L411,95.138L553,69.938L553,89.323L411,135.846L269,120.338L127,100.954Z" fill="#59A14F" fill-opacity="0.75"><title>Jobs</title></path>
+</svg>

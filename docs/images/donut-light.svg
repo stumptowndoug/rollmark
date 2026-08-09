@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" class="rollmark-chart-svg" role="img" aria-label="Subscribers by plan. Free accounts make up about three quarters of subscribers." font-family="system-ui, -apple-system, sans-serif">
+<text x="16" y="28" font-size="15" font-weight="600" fill="#1f2733">Subscribers by plan</text>
+<path transform="translate(194,182)" d="M0,-138A138,138,0,1,1,-137.935,4.25L-85.519,2.635A85.56,85.56,0,1,0,0,-85.56Z" fill="#4E79A7"><title>Free: 9,120 (75%)</title></path>
+<path transform="translate(194,182)" d="M-137.935,4.25A138,138,0,0,1,-44.526,-130.619L-27.606,-80.984A85.56,85.56,0,0,0,-85.519,2.635Z" fill="#F28E2B"><title>Pro: 2,480 (20%)</title></path>
+<path transform="translate(194,182)" d="M-44.526,-130.619A138,138,0,0,1,0,-138L0,-85.56A85.56,85.56,0,0,0,-27.606,-80.984Z" fill="#59A14F"><title>Team: 640 (5%)</title></path>
+<rect x="364" y="47" width="10" height="10" rx="2" fill="#4E79A7"/>
+<text x="380" y="56" font-size="12" fill="#1f2733">Free</text>
+<text x="530" y="56" font-size="12" fill="#6b7280">9,120 · 75%</text>
+<rect x="364" y="69" width="10" height="10" rx="2" fill="#F28E2B"/>
+<text x="380" y="78" font-size="12" fill="#1f2733">Pro</text>
+<text x="530" y="78" font-size="12" fill="#6b7280">2,480 · 20%</text>
+<rect x="364" y="91" width="10" height="10" rx="2" fill="#59A14F"/>
+<text x="380" y="100" font-size="12" fill="#1f2733">Team</text>
+<text x="530" y="100" font-size="12" fill="#6b7280">640 · 5%</text>
+</svg>
