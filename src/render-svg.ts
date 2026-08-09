@@ -274,7 +274,10 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
       });
     });
   } else if (spec.type === "bar") {
+    // Proportional whitespace between grouped bars: a fixed 1px gap
+    // antialiases into a dark seam once the SVG scales down.
     const inner = bandwidth / series.length;
+    const barWidth = series.length > 1 ? inner * 0.88 : inner;
     series.forEach((s, si) => {
       rows.forEach((_, i) => {
         const v = s.values[i];
@@ -282,7 +285,7 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
         const top = frame.top + yScale(Math.max(0, v));
         const h = Math.abs(yScale(v) - yScale(0));
         frame.parts.push(
-          `<rect x="${xPos(i) + si * inner}" y="${top}" width="${Math.max(1, inner - 1)}" height="${h}" fill="${s.color}">${mark(i, s, v)}</rect>`,
+          `<rect x="${xPos(i) + si * inner}" y="${top}" width="${Math.max(1, barWidth)}" height="${h}" fill="${s.color}">${mark(i, s, v)}</rect>`,
         );
       });
     });
@@ -297,6 +300,8 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
       });
     });
   } else if (spec.type === "area" && spec.stack) {
+    // Stacked segments never overlap, so they render fully opaque —
+    // translucency here lets gridlines bleed through and muddies colors.
     const layout = stackedLayout(series);
     series.forEach((s, si) => {
       const gen = d3area<number>()
@@ -305,7 +310,7 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
         .y1((i) => frame.top + yScale(layout[si]![i]![1]!))
         .defined((i) => s.values[i] !== null && s.values[i] !== undefined);
       frame.parts.push(
-        `<path d="${gen(range(rows.length)) ?? ""}" fill="${s.color}" fill-opacity="0.75"><title>${esc(s.label)}</title></path>`,
+        `<path d="${gen(range(rows.length)) ?? ""}" fill="${s.color}"><title>${esc(s.label)}</title></path>`,
       );
     });
   } else {
@@ -385,7 +390,11 @@ function renderPie(spec: ChartSpec, options: RenderSvgOptions): string {
     .sort(null)(slices);
   const arcGen = arc<(typeof arcs)[number]>()
     .innerRadius(radius * 0.62)
-    .outerRadius(radius);
+    .outerRadius(radius)
+    // A hairline of breathing room between slices keeps adjacent colors
+    // from blurring together at small sizes.
+    .padAngle(0.012)
+    .padRadius(radius);
 
   arcs.forEach((a, i) => {
     const pctText = `${Math.round((a.data.value / total) * 100)}%`;

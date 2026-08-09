@@ -25,7 +25,7 @@
 <text x="411" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>04:00</title>04:00</text>
 <text x="553" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>06:00</title>06:00</text>
 <line x1="56" y1="320" x2="624" y2="320" stroke="#d1d5db" stroke-width="1"/>
-<path d="M127,143.6L269,157.169L411,168.8L553,135.846L553,320L411,320L269,320L127,320Z" fill="#4E79A7" fill-opacity="0.75"><title>API</title></path>
-<path d="M127,100.954L269,120.338L411,135.846L553,89.323L553,135.846L411,168.8L269,157.169L127,143.6Z" fill="#F28E2B" fill-opacity="0.75"><title>Auth</title></path>
-<path d="M127,85.446L269,102.892L411,95.138L553,69.938L553,89.323L411,135.846L269,120.338L127,100.954Z" fill="#59A14F" fill-opacity="0.75"><title>Jobs</title></path>
+<path d="M127,143.6L269,157.169L411,168.8L553,135.846L553,320L411,320L269,320L127,320Z" fill="#4E79A7"><title>API</title></path>
+<path d="M127,100.954L269,120.338L411,135.846L553,89.323L553,135.846L411,168.8L269,157.169L127,143.6Z" fill="#F28E2B"><title>Auth</title></path>
+<path d="M127,85.446L269,102.892L411,95.138L553,69.938L553,89.323L411,135.846L269,120.338L127,100.954Z" fill="#59A14F"><title>Jobs</title></path>
 </svg>
