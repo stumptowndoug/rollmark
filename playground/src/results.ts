@@ -60,9 +60,15 @@ const matrixEl = document.getElementById("matrix") as HTMLDivElement;
 const detailEl = document.getElementById("detail") as HTMLDivElement;
 
 let currentRun: EvalRun | undefined;
-let mounted: MountedDocument | undefined;
+let mountedList: MountedDocument[] = [];
 let selected: { model: number; task: string } | undefined;
+let selectedTask: string | undefined; // compare-across-models mode
 let attemptIndex = 0;
+
+function disposeMounted(): void {
+  for (const m of mountedList) m.dispose();
+  mountedList = [];
+}
 
 function modelLabel(m: ModelResult): string {
   return m.mode === "structured" ? `${m.model} [structured]` : m.model;
@@ -79,7 +85,12 @@ function chipFor(t: TaskResult | undefined): { cls: string; text: string; title:
 
 function renderMatrix(run: EvalRun): void {
   const tasks = run.taskIds;
-  const head = tasks.map((id) => `<th>${id}</th>`).join("");
+  const head = tasks
+    .map(
+      (id) =>
+        `<th class="col${selectedTask === id ? " selected" : ""}" data-task="${id}" title="compare all models on ${id}">${id}</th>`,
+    )
+    .join("");
   const rows = run.models
     .map((m, mi) => {
       const byTask = new Map(m.tasks.map((t) => [t.taskId, t]));
@@ -106,16 +117,67 @@ function renderMatrix(run: EvalRun): void {
   matrixEl.querySelectorAll<HTMLElement>(".chip:not(.empty)").forEach((chip) => {
     chip.addEventListener("click", () => {
       selected = { model: Number(chip.dataset.model), task: chip.dataset.task! };
+      selectedTask = undefined;
       attemptIndex = -1; // latest
       renderMatrix(run);
       void renderDetail();
     });
   });
+  matrixEl.querySelectorAll<HTMLElement>("thead th.col").forEach((th) => {
+    th.addEventListener("click", () => {
+      selectedTask = th.dataset.task!;
+      selected = undefined;
+      renderMatrix(run);
+      void renderCompare();
+    });
+  });
+}
+
+/** Compare mode: every model's final output for one task, stacked. */
+async function renderCompare(): Promise<void> {
+  disposeMounted();
+  if (!currentRun || !selectedTask) return;
+  const entries = currentRun.models
+    .map((m, mi) => ({ m, mi, t: m.tasks.find((t) => t.taskId === selectedTask) }))
+    .filter((e): e is { m: ModelResult; mi: number; t: TaskResult } => e.t !== undefined);
+
+  detailEl.innerHTML =
+    `<h2>${selectedTask} · ${entries.length} model outputs</h2>` +
+    `<p class="placeholder">Final attempt per model. Click a matrix cell for full details and attempt history.</p>` +
+    entries
+      .map(({ m, mi, t }) => {
+        const chip = chipFor(t);
+        const doc = t.documents[t.documents.length - 1];
+        const note = !t.final.pass
+          ? escapeHtml(t.error ?? t.final.issues[0] ?? "failed")
+          : t.final.summaryConsistent === false
+            ? escapeHtml(t.final.issues.find((i) => i.includes("[judge]")) ?? "summary flagged")
+            : t.repairAttempt
+              ? "passed after repair — showing the repaired document"
+              : "";
+        return (
+          `<section class="cmp">` +
+          `<div class="cmp-head"><span class="chip ${chip.cls}">${chip.text}</span><strong>${modelLabel(m)}</strong></div>` +
+          (note ? `<p class="cmp-note">${note}</p>` : "") +
+          (doc !== undefined
+            ? `<div class="cmp-doc" id="cmp-doc-${mi}"></div>`
+            : `<p class="cmp-note">no document produced</p>`) +
+          `</section>`
+        );
+      })
+      .join("");
+
+  for (const { mi, t } of entries) {
+    const el = document.getElementById(`cmp-doc-${mi}`);
+    const doc = t.documents[t.documents.length - 1];
+    if (el && doc !== undefined) {
+      mountedList.push(await renderDocumentInto(el, doc));
+    }
+  }
 }
 
 async function renderDetail(): Promise<void> {
-  mounted?.dispose();
-  mounted = undefined;
+  disposeMounted();
   if (!currentRun || !selected) return;
   const model = currentRun.models[selected.model]!;
   const task = model.tasks.find((t) => t.taskId === selected!.task);
@@ -170,7 +232,7 @@ async function renderDetail(): Promise<void> {
   });
 
   if (source !== undefined) {
-    mounted = await renderDocumentInto(document.getElementById("doc")!, source);
+    mountedList.push(await renderDocumentInto(document.getElementById("doc")!, source));
   }
 }
 
@@ -185,7 +247,9 @@ function escapeHtml(text: string): string {
 async function loadRun(path: string): Promise<void> {
   currentRun = (await runFiles[path]!()).default;
   selected = undefined;
-  detailEl.innerHTML = `<p class="placeholder">Pick a cell to see that model's actual output.</p>`;
+  selectedTask = undefined;
+  disposeMounted();
+  detailEl.innerHTML = `<p class="placeholder">Pick a cell to see one model's output, or click a task column header to compare every model on that task.</p>`;
   renderMatrix(currentRun);
 }
 
@@ -205,10 +269,12 @@ function init(): void {
   void loadRun(paths[0]!);
 }
 
-window.addEventListener("resize", () => mounted?.resize());
+window.addEventListener("resize", () => {
+  for (const m of mountedList) m.resize();
+});
 darkQuery.addEventListener("change", () => {
   initMermaid();
-  void renderDetail();
+  void (selectedTask ? renderCompare() : renderDetail());
 });
 
 initMermaid();

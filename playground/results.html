@@ -86,6 +86,9 @@
         text-align: left;
         vertical-align: bottom;
       }
+      #matrix thead th.col { cursor: pointer; }
+      #matrix thead th.col:hover { color: inherit; background: var(--hover); border-radius: 4px; }
+      #matrix thead th.col.selected { color: inherit; font-weight: 700; }
       #matrix td { padding: 2px; }
       .chip {
         display: block;
@@ -149,6 +152,12 @@
       .rollmark-fallback-title { font-weight: 600; margin: 0 0 0.25rem; }
       .rollmark-fallback-summary { margin: 0 0 0.5rem; }
       .rollmark-fallback-reason { color: var(--muted); font-size: 0.85rem; margin: 0 0 0.5rem; }
+      .cmp { border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin: 0.9rem 0; }
+      .cmp-head { display: flex; align-items: center; gap: 0.5rem; }
+      .cmp-head .chip { cursor: default; }
+      .cmp-note { font-size: 0.8rem; color: var(--muted); margin: 0.4rem 0 0; }
+      .cmp-doc { border-top: 1px solid var(--border); margin-top: 0.6rem; padding-top: 0.6rem; }
+      .cmp-doc pre { background: var(--code-bg); padding: 0.75rem; border-radius: 6px; overflow-x: auto; font-size: 0.8rem; }
       details.source { margin-top: 1rem; }
       details.source summary { cursor: pointer; font-size: 0.85rem; color: var(--muted); }
       details.source pre { background: var(--code-bg); padding: 0.75rem; border-radius: 6px; overflow-x: auto; font-size: 0.75rem; }
