@@ -50,6 +50,7 @@ flowchart LR
 
 - Chart: "how do these quantities compare or change?"
 - Mermaid: "how are these things connected or ordered?"
-- Neither: if the data is a handful of values best stated in a sentence or a small Markdown table, do that instead. Only add a visual block when it genuinely aids understanding.
+- Neither: if the data is a handful of values best stated in a sentence or a small Markdown table, do that instead.
+- HARD RULE: never chart one or two values — a single metric, a total, or a used-vs-capacity pair belongs in prose (e.g. "412 GB of 500 GB, 82%"), not a chart. A chart needs at least three data points AND a comparison or trend worth seeing. When in doubt, write prose; a report with no chart is better than a report with a pointless one.
 
 ---END SNIPPET---

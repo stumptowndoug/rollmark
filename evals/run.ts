@@ -143,10 +143,16 @@ async function runTask(opts: RunTaskOptions): Promise<TaskResult> {
     if (!judge || task.expected.blockType !== "chart" || !final.pass) return;
     try {
       const specs = chartSpecs(document, validator);
-      const verdicts = await Promise.all(specs.map((spec) => judgeSummary(judge, spec)));
-      final.summaryConsistent = verdicts.every((v) => v.consistent);
+      const verdicts = await Promise.all(
+        specs.map((spec) => judgeSummary(judge, spec, task.input)),
+      );
+      const decided = verdicts.filter((v) => v.consistent !== null);
+      // No verdicts at all → leave summaryConsistent null ("not judged").
+      if (decided.length > 0) {
+        final.summaryConsistent = decided.every((v) => v.consistent === true);
+      }
       for (const v of verdicts) {
-        if (!v.consistent) final.issues.push(`[judge] summary inconsistent: ${v.reason}`);
+        if (v.consistent === false) final.issues.push(`[judge] summary inconsistent: ${v.reason}`);
       }
     } catch (cause) {
       final.issues.push(`[judge] failed: ${cause instanceof Error ? cause.message : cause}`);

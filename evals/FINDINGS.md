@@ -153,6 +153,24 @@ renderer):
     itself states, which the judge wrongly called invented). Read judge
     columns as review queues, not scores.
 
+## Restraint rule and judge calibration (August 9, follow-up)
+
+16. **Chart restraint is promptable.** Replacing the vague "only when it
+    helps" with a hard rule ("never chart one or two values… at least
+    three points AND a comparison worth seeing; when in doubt, prose")
+    fixed the recurring no-chart violations: gemini-3-flash and
+    mistral-small both declined to chart the storage stat while still
+    charting every legitimate task (6-task control run, all ✓).
+17. **Most judge false positives came from missing context.** The judge
+    now receives the original task input, so claims the source itself
+    states are no longer "invented"; the rubric is restricted to
+    numerically checkable contradictions, with "when uncertain, answer
+    consistent". qwen's summary consistency went ~70% → 100% on the
+    re-run without any change to qwen's output quality requirements.
+18. **A silent judge is "no verdict", never a flag.** An empty/unparseable
+    judge reply was being scored as inconsistent; it now retries once and
+    then reports null (excluded from the metric).
+
 ## Method notes
 
 - Scoring leniencies that exist on purpose: months may be encoded as

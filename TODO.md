@@ -2,8 +2,8 @@
 
 ## 📋 Backlog
 
-- [ ] Create GitHub repo, push, add repository/homepage fields to package.json
-- [ ] `npm publish` when ready (name "rollmark" is available; prepublishOnly gates on typecheck+test+build)
+- [ ] `npm publish` when ready (recommend: after Springroll consumes the git dep for a while)
+- [ ] Springroll-side: add `"rollmark": "github:stumptowndoug/rollmark"` and a thin wrapper over `mountRollmarkDocument`
 
 - [ ] Phase 2: Springroll integration behind thin API (`<Rollmark content={...} />`)
 - [ ] Phase 2: streaming-aware rendering (skeleton while fence open, upgrade on close)
@@ -22,6 +22,12 @@
 ## 🚧 In Progress
 
 ## ✅ Done
+
+- [x] GitHub repo created (github.com/stumptowndoug/rollmark, public); CI live and green
+  - [x] CI immediately caught a real bug: temporal axes formatted in local time — now UTC (scaleUtc/utcFormat)
+- [x] `mountRollmarkDocument`: one-call browser integration (charts + injected mermaid w/ strict init + fallbacks + auto theme); playground is now a 10-line wrapper; 5 DOM tests
+- [x] Chart-restraint hard rule in prompt kit — gemini/mistral no-chart violations fixed, controls unaffected
+- [x] Judge calibration: source context + numeric-contradictions-only rubric + null verdicts on judge failure (FINDINGS.md 16–18)
 
 - [x] Package-readiness: publishable package.json, LICENSE (MIT), CI workflow (test matrix + pack smoke), 29 kB tarball verified as a consumer
 
