@@ -71,6 +71,7 @@
     "@types/d3-time-format": "^4.0.3",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^22.0.0",
+    "happy-dom": "^20.11.2",
     "tsx": "^4.19.0",
     "typescript": "^5.5.0",
     "vitest": "^3.0.0",

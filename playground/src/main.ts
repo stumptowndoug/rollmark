@@ -1,5 +1,5 @@
 import exampleDoc from "../../examples/weekly-analytics.md?raw";
-import { darkQuery, initMermaid, renderDocumentInto } from "./mount.js";
+import { darkQuery, renderDocumentInto } from "./mount.js";
 import type { MountedDocument } from "./mount.js";
 
 const input = document.getElementById("input") as HTMLTextAreaElement;
@@ -18,13 +18,7 @@ input.addEventListener("input", () => {
   timer = setTimeout(render, 250);
 });
 
-window.addEventListener("resize", () => mounted?.resize());
+darkQuery.addEventListener("change", () => void render());
 
-darkQuery.addEventListener("change", () => {
-  initMermaid();
-  void render();
-});
-
-initMermaid();
 input.value = exampleDoc;
 void render();

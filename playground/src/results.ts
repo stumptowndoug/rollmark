@@ -1,4 +1,4 @@
-import { darkQuery, initMermaid, renderDocumentInto } from "./mount.js";
+import { darkQuery, renderDocumentInto } from "./mount.js";
 import type { MountedDocument } from "./mount.js";
 
 // Minimal shapes of evals/run.ts output — kept local so the viewer only
@@ -279,13 +279,8 @@ function init(): void {
   void loadRun(paths[0]!);
 }
 
-window.addEventListener("resize", () => {
-  for (const m of mountedList) m.resize();
-});
 darkQuery.addEventListener("change", () => {
-  initMermaid();
   void (selectedTask ? renderCompare() : renderDetail());
 });
 
-initMermaid();
 init();

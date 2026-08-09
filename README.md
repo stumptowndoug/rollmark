@@ -65,24 +65,36 @@ Key properties:
 
 Not yet on npm; consume it as a file/git dependency (`"rollmark": "file:../rollmark"` or a git URL), or work in this repo directly.
 
+In the browser, one call does everything — markdown, chart SVGs, mermaid mounting, fallbacks:
+
+```ts
+import mermaid from "mermaid"; // optional; bring your own for diagram blocks
+import { mountRollmarkDocument } from "rollmark";
+
+const mounted = await mountRollmarkDocument(container, markdownSource, {
+  theme: "auto",   // follows prefers-color-scheme; or "light" / "dark"
+  mermaid,         // initialized with securityLevel: "strict" for you
+});
+// later: mounted.dispose()
+```
+
+For servers or custom pipelines, use the layers directly:
+
 ```ts
 import { renderRollmark, renderChartSVG } from "rollmark";
 
 const { html, blocks } = renderRollmark(markdownSource);
-// html: the document, with a placeholder div per visual block:
-//   <div data-rollmark-block="chart" data-rollmark-id="0"></div>
-// blocks: each block's validated ChartSpec (or its errors), by id.
+// html: the document with a placeholder div per visual block
+// blocks: each block's validated ChartSpec (or its errors), by id
 
 for (const block of blocks) {
   if (block.type === "chart" && block.spec) {
-    element(block.id).innerHTML = renderChartSVG(block.spec, { theme: "dark" });
-  } else if (block.type === "mermaid") {
-    // render block.source with mermaid ({ securityLevel: "strict" })
+    const svg = renderChartSVG(block.spec, { theme: "dark" }); // SVG string, no DOM needed
   }
 }
 ```
 
-Invalid charts never reach `block.spec` — the plugin renders their fallback card directly into `html`, so a broken chart degrades gracefully with zero client-side work. See [`playground/src/mount.ts`](./playground/src/mount.ts) for a complete reference integration.
+Invalid charts never reach `block.spec` — the plugin renders their fallback card directly into `html`, so a broken chart degrades gracefully with zero client-side work.
 
 To make a *model* produce Rollmark, use the ready-made system-prompt snippet and few-shot examples in [`prompt-kit/`](./prompt-kit/) — the rules in it are load-bearing (each one prevents a failure mode observed in evals).
 
@@ -96,7 +108,8 @@ Full guide: [`docs/chart-dsl.md`](./docs/chart-dsl.md). Normative spec: [`SPEC.m
 
 | Export | What it does |
 |---|---|
-| `renderRollmark(source, md?)` | Markdown → `{ html, blocks }`; the one-call entry point |
+| `mountRollmarkDocument(el, source, opts?)` | Browser one-call mount: markdown + charts + mermaid + fallbacks |
+| `renderRollmark(source, md?)` | Markdown → `{ html, blocks }`; the parsing/HTML layer |
 | `rollmarkPlugin` | The markdown-it plugin, for use with your own markdown-it instance |
 | `renderChartSVG(spec, { theme?, width?, height? })` | ChartSpec → static SVG string (browser or server) |
 | `validateChartPayload(source)` | Validate a fence payload (DSL or JSON) → `ChartSpec` or structured errors |

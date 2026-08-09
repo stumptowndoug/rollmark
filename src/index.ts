@@ -8,6 +8,8 @@ export type { RollmarkEnvState } from "./markdown-it-plugin.js";
 export { renderRollmark } from "./render.js";
 export type { RenderResult } from "./render.js";
 export { renderChartFallback, renderMermaidFallback, escapeHtml } from "./fallback.js";
+export { mountRollmarkDocument } from "./mount.js";
+export type { MermaidLike, MountOptions, MountedRollmark } from "./mount.js";
 export type {
   ChartAxis,
   ChartCompiler,
