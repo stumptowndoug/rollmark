@@ -23,8 +23,11 @@
 ## 🚧 In Progress
 
 - [ ] App-level color overrides (consumer API, never model-facing; baked into SVG)
+  - [ ] built + tested + verified live — PR #3 open, awaiting merge
 - [ ] Built-in palette variations (default / okabe-ito / muted / monochrome, per-theme, gallery dimension)
+  - [ ] built + tested — PR #3 open, awaiting merge
 - [ ] Proper hover tooltips in the mount layer (automatic from chart data; per-mark only)
+  - [ ] built + tested + verified live in playground — PR #3 open, awaiting merge
 
 ## ✅ Done
 
