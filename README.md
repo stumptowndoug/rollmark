@@ -84,9 +84,13 @@ import mermaid from "mermaid"; // optional, for diagram blocks
 import { mountRollmarkDocument } from "rollmark";
 
 await mountRollmarkDocument(container, markdownFromYourModel, {
-  theme: "auto",   // follows the user's light/dark preference
+  theme: "auto",              // follows the user's light/dark preference
+  palette: "okabe-ito",       // optional: named palette (default | okabe-ito | muted | monochrome)
+  colors: { series: [...] },  // optional: your brand colors win over any palette
   mermaid,
 });
+// Charts get instant themed hover tooltips automatically (tooltips: false to opt out).
+// Color and interaction are consumer options only — models can never touch them.
 ```
 
 That's the whole browser integration. On a server, `renderRollmark()` and `renderChartSVG()` give you the HTML and SVG strings directly — no DOM required.

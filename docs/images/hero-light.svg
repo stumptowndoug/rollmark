@@ -29,11 +29,11 @@
 <text x="624" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>Aug 9</title>Aug 9</text>
 <line x1="56" y1="320" x2="624" y2="320" stroke="#d1d5db" stroke-width="1"/>
 <path d="M56,129.867L150.667,108.4L245.333,113L340,94.6L434.667,88.467L529.333,73.133L624,83.867" fill="none" stroke="#4E79A7" stroke-width="2" stroke-linejoin="round"><title>Visitors</title></path>
-<circle cx="56" cy="129.86666666666667" r="2.5" fill="#4E79A7"><title>2026-08-03 · Visitors: 1,240</title></circle>
-<circle cx="150.66666666666666" cy="108.39999999999999" r="2.5" fill="#4E79A7"><title>2026-08-04 · Visitors: 1,380</title></circle>
-<circle cx="245.33333333333331" cy="113" r="2.5" fill="#4E79A7"><title>2026-08-05 · Visitors: 1,350</title></circle>
-<circle cx="340" cy="94.6" r="2.5" fill="#4E79A7"><title>2026-08-06 · Visitors: 1,470</title></circle>
-<circle cx="434.66666666666663" cy="88.46666666666667" r="2.5" fill="#4E79A7"><title>2026-08-07 · Visitors: 1,510</title></circle>
-<circle cx="529.3333333333334" cy="73.13333333333333" r="2.5" fill="#4E79A7"><title>2026-08-08 · Visitors: 1,610</title></circle>
-<circle cx="624" cy="83.86666666666667" r="2.5" fill="#4E79A7"><title>2026-08-09 · Visitors: 1,540</title></circle>
+<circle cx="56" cy="129.86666666666667" r="2.5" fill="#4E79A7" data-rm-x="Aug 3, 2026" data-rm-s="Visitors" data-rm-v="1,240"><title>Aug 3, 2026 · Visitors: 1,240</title></circle>
+<circle cx="150.66666666666666" cy="108.39999999999999" r="2.5" fill="#4E79A7" data-rm-x="Aug 4, 2026" data-rm-s="Visitors" data-rm-v="1,380"><title>Aug 4, 2026 · Visitors: 1,380</title></circle>
+<circle cx="245.33333333333331" cy="113" r="2.5" fill="#4E79A7" data-rm-x="Aug 5, 2026" data-rm-s="Visitors" data-rm-v="1,350"><title>Aug 5, 2026 · Visitors: 1,350</title></circle>
+<circle cx="340" cy="94.6" r="2.5" fill="#4E79A7" data-rm-x="Aug 6, 2026" data-rm-s="Visitors" data-rm-v="1,470"><title>Aug 6, 2026 · Visitors: 1,470</title></circle>
+<circle cx="434.66666666666663" cy="88.46666666666667" r="2.5" fill="#4E79A7" data-rm-x="Aug 7, 2026" data-rm-s="Visitors" data-rm-v="1,510"><title>Aug 7, 2026 · Visitors: 1,510</title></circle>
+<circle cx="529.3333333333334" cy="73.13333333333333" r="2.5" fill="#4E79A7" data-rm-x="Aug 8, 2026" data-rm-s="Visitors" data-rm-v="1,610"><title>Aug 8, 2026 · Visitors: 1,610</title></circle>
+<circle cx="624" cy="83.86666666666667" r="2.5" fill="#4E79A7" data-rm-x="Aug 9, 2026" data-rm-s="Visitors" data-rm-v="1,540"><title>Aug 9, 2026 · Visitors: 1,540</title></circle>
 </svg>

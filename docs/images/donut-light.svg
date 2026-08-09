@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" class="rollmark-chart-svg" role="img" aria-label="Subscribers by plan. Free accounts make up about three quarters of subscribers." font-family="system-ui, -apple-system, sans-serif">
 <text x="16" y="28" font-size="15" font-weight="600" fill="#1f2733">Subscribers by plan</text>
-<path transform="translate(194,182)" d="M0.828,-137.998A138,138,0,1,1,-137.907,5.077L-85.49,3.462A85.56,85.56,0,1,0,0.828,-85.556Z" fill="#4E79A7"><title>Free: 9,120 (75%)</title></path>
-<path transform="translate(194,182)" d="M-137.958,3.422A138,138,0,0,1,-45.309,-130.35L-28.389,-80.713A85.56,85.56,0,0,0,-85.541,1.807Z" fill="#F28E2B"><title>Pro: 2,480 (20%)</title></path>
-<path transform="translate(194,182)" d="M-43.742,-130.884A138,138,0,0,1,-0.828,-137.998L-0.828,-85.556A85.56,85.56,0,0,0,-26.821,-81.247Z" fill="#59A14F"><title>Team: 640 (5%)</title></path>
+<path transform="translate(194,182)" d="M0.828,-137.998A138,138,0,1,1,-137.907,5.077L-85.49,3.462A85.56,85.56,0,1,0,0.828,-85.556Z" fill="#4E79A7" data-rm-x="Free" data-rm-v="9,120 (75%)"><title>Free: 9,120 (75%)</title></path>
+<path transform="translate(194,182)" d="M-137.958,3.422A138,138,0,0,1,-45.309,-130.35L-28.389,-80.713A85.56,85.56,0,0,0,-85.541,1.807Z" fill="#F28E2B" data-rm-x="Pro" data-rm-v="2,480 (20%)"><title>Pro: 2,480 (20%)</title></path>
+<path transform="translate(194,182)" d="M-43.742,-130.884A138,138,0,0,1,-0.828,-137.998L-0.828,-85.556A85.56,85.56,0,0,0,-26.821,-81.247Z" fill="#59A14F" data-rm-x="Team" data-rm-v="640 (5%)"><title>Team: 640 (5%)</title></path>
 <rect x="364" y="47" width="10" height="10" rx="2" fill="#4E79A7"/>
 <text x="380" y="56" font-size="12" fill="#1f2733">Free</text>
 <text x="530" y="56" font-size="12" fill="#6b7280">9,120 · 75%</text>

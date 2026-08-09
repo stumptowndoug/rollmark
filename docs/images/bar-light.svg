@@ -18,10 +18,10 @@
 <text x="340" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>Onboarding</title>Onboarding</text>
 <text x="526.2295081967213" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>API</title>API</text>
 <line x1="56" y1="320" x2="624" y2="320" stroke="#d1d5db" stroke-width="1"/>
-<rect x="83.93442622950818" y="129.60000000000002" width="61.455737704918036" height="190.39999999999998" fill="#4E79A7"><title>Billing · Opened: 34</title></rect>
-<rect x="270.1639344262295" y="202.4" width="61.455737704918036" height="117.6" fill="#4E79A7"><title>Onboarding · Opened: 21</title></rect>
-<rect x="456.39344262295083" y="68" width="61.455737704918036" height="252" fill="#4E79A7"><title>API · Opened: 45</title></rect>
-<rect x="153.77049180327867" y="157.6" width="61.455737704918036" height="162.4" fill="#F28E2B"><title>Billing · Resolved: 29</title></rect>
-<rect x="340" y="196.79999999999998" width="61.455737704918036" height="123.20000000000002" fill="#F28E2B"><title>Onboarding · Resolved: 22</title></rect>
-<rect x="526.2295081967213" y="146.4" width="61.455737704918036" height="173.6" fill="#F28E2B"><title>API · Resolved: 31</title></rect>
+<rect x="83.93442622950818" y="129.60000000000002" width="61.455737704918036" height="190.39999999999998" fill="#4E79A7" data-rm-x="Billing" data-rm-s="Opened" data-rm-v="34"><title>Billing · Opened: 34</title></rect>
+<rect x="270.1639344262295" y="202.4" width="61.455737704918036" height="117.6" fill="#4E79A7" data-rm-x="Onboarding" data-rm-s="Opened" data-rm-v="21"><title>Onboarding · Opened: 21</title></rect>
+<rect x="456.39344262295083" y="68" width="61.455737704918036" height="252" fill="#4E79A7" data-rm-x="API" data-rm-s="Opened" data-rm-v="45"><title>API · Opened: 45</title></rect>
+<rect x="153.77049180327867" y="157.6" width="61.455737704918036" height="162.4" fill="#F28E2B" data-rm-x="Billing" data-rm-s="Resolved" data-rm-v="29"><title>Billing · Resolved: 29</title></rect>
+<rect x="340" y="196.79999999999998" width="61.455737704918036" height="123.20000000000002" fill="#F28E2B" data-rm-x="Onboarding" data-rm-s="Resolved" data-rm-v="22"><title>Onboarding · Resolved: 22</title></rect>
+<rect x="526.2295081967213" y="146.4" width="61.455737704918036" height="173.6" fill="#F28E2B" data-rm-x="API" data-rm-s="Resolved" data-rm-v="31"><title>API · Resolved: 31</title></rect>
 </svg>
