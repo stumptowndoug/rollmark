@@ -3,6 +3,14 @@
   "version": "0.1.0",
   "description": "Markdown-based document format and renderer for AI-generated reports with charts: a tiny LLM-friendly chart DSL, strict validation, and an opinionated SVG renderer.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stumptowndoug/rollmark.git"
+  },
+  "homepage": "https://github.com/stumptowndoug/rollmark#readme",
+  "bugs": {
+    "url": "https://github.com/stumptowndoug/rollmark/issues"
+  },
   "keywords": [
     "markdown",
     "markdown-it",

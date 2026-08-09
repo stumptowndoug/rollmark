@@ -24,7 +24,7 @@ Referral | 1150
 
 That block renders as a themed bar chart in Rollmark, and as the readable text above everywhere else.
 
-Status: **v1, incubating.** [Springroll](https://github.com) is the first intended consumer. APIs may still move.
+Status: **v1, incubating.** Springroll is the first intended consumer. APIs may still move.
 
 ## Why this exists
 
