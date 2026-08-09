@@ -107,6 +107,52 @@ Lessons:
     (cat-multi: "Billing had the most resolved" when API's 31 beats
     Billing's 29) — summary honesty is orthogonal to payload syntax.
 
+## Canonical-DSL baseline with expanded types (August 9, run 16-48-43)
+
+After the DSL became the canonical syntax (bare type line, temporal
+inference, quoting) and the vocabulary grew to line/bar/area/scatter/pie
+plus `stack`, a fresh 9-model × 15-task baseline (three new gate tasks:
+pie-share, scatter-relation, stacked-parts; render metric = the real SVG
+renderer):
+
+| Model | First-pass | Schema valid | Data fidelity | Summary consistent |
+|---|---:|---:|---:|---:|
+| deepseek-v4-flash | 100% | 100% | 100% | 92% |
+| xiaomi/mimo-v2.5 | 93% → 100%* | 100% | 92% → 100%* | 100% |
+| gpt-5.6-luna | 100% | 100% | 100% | 100% |
+| gpt-4o-mini | 100% | 100% | 100% | 85% |
+| gemini-3-flash-preview | 93% | 100% | 100% | 100% |
+| claude-sonnet-5 | 100% | 100% | 100% | 100% |
+| grok-4.5 | 100% | 100% | 100% | 100% |
+| mistral-small-2603 | 93% | 100% | 100% | 85% |
+| qwen3-8b | 100% | 100% | 100% | 69% |
+
+\* after the header-row prompt rule (lesson 13).
+
+12. **The expanded vocabulary passed its gate.** Every model chose `pie`
+    for shares, `scatter` for the relationship task, and produced
+    `stack: true` from prose ("stacked so the bar heights show the
+    total") — including the 8B tier. Schema validity is 100% across all
+    nine models: the bare-type DSL with temporal inference parses
+    perfectly everywhere, with fewer things to remember than the old
+    explicit syntax.
+13. **New DSL hazard found and fixed: omitted header rows.** For
+    label|value pies a header feels redundant; xiaomi wrote
+    `Free | 9120` first, which parsed as the header and ate a slice. A
+    parser heuristic is unsafe (numeric *headers* like `region | 2024`
+    are legitimate), so the rule lives in the prompt ("the first row is
+    ALWAYS a header — even for pie charts"); re-test passed 3/3.
+14. **Remaining misses are judgment, not format.** gemini and
+    mistral-small again emitted charts on the no-chart task; every other
+    non-judge failure is gone. Chart restraint is the one behavior the
+    format can't enforce.
+15. **The judge's flags are now the dominant signal**, and they're a mix:
+    real catches (mistral hallucinating a Saturday not in the data; qwen
+    claiming 87% where the data says 74.5%) and false positives (qwen's
+    comma-numbers summary mentioned the data-entry glitch that the input
+    itself states, which the judge wrongly called invented). Read judge
+    columns as review queues, not scores.
+
 ## Method notes
 
 - Scoring leniencies that exist on purpose: months may be encoded as

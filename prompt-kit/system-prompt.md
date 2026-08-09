@@ -27,6 +27,7 @@ Rules:
 
 - The first line is the chart type: `line` (trends), `bar` (category comparisons), `area` (magnitude over time), `scatter` (relationship between two numeric measures), or `pie` (shares of a whole).
 - The first table column is the x-axis; every additional column is a series (1–8). Column headers become the labels.
+- The table's first row is ALWAYS a header row naming the columns (e.g. `plan | Subscribers`) — even for pie charts. Never start the table with a data row.
 - Each data row is ONE x-axis entry — one date or one category. For category comparisons the categories go down the first column, one per row — never across the header.
 - Write dates as ISO 8601 (`2026-08-01`); the axis becomes a time axis automatically.
 - Series cells are numbers; leave a cell empty for a missing value. Pie charts take exactly one value column; scatter needs numeric x values.

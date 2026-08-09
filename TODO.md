@@ -18,14 +18,16 @@
 
 ## 🚧 In Progress
 
-- [ ] DSL becomes canonical chart syntax (decided by Doug; JSON accepted as alternate)
-  - [ ] promote parser to src/ with revised grammar: bare type line, quoting, coercion rules, temporal inference
-- [ ] Extend ChartSpec: area, scatter, pie + stack option
-- [ ] Rollmark-owned SVG renderer (d3 micro-modules for math; static SVG, no interactivity in v1)
-- [ ] Rewrite SPEC.md §2, prompt kit, examples for the new syntax
-- [ ] Eval-gate new chart types (pie/scatter/stacked tasks) across the model spread
-
 ## ✅ Done
+
+- [x] DSL becomes canonical chart syntax (JSON accepted as alternate via leading `{`)
+  - [x] `src/parse-dsl.ts`: bare type line, quoting, thousands coercion, temporal inference
+- [x] Extend ChartSpec: area, scatter, pie + stack (per-type validation rules)
+- [x] Rollmark-owned SVG renderer (`renderChartSVG`, d3 micro-modules; static, themed, DOM-free)
+  - [x] playground dropped echarts; all five types verified in browser
+- [x] Rewrite SPEC.md §2, prompt kit, examples, JSON schema for the new syntax
+- [x] Eval-gate new chart types: 15-task baseline, 6/9 models 100% first-pass, schema validity 100% everywhere
+  - [x] header-row hazard found (xiaomi pie) and fixed via prompt rule; details in FINDINGS.md lessons 12–15
 
 - [x] Eval: A/B chart payload syntaxes (json / dsl / yaml / arrays), 9 models × 10 tasks
   - [x] dsl matches json reliability at −34% tokens after one orientation rule (verified 16/16 re-test)

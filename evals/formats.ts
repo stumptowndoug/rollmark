@@ -170,6 +170,7 @@ date | visitors
 Format rules:
 - The first line is the chart type: line, bar, area, scatter, or pie. Add \`stack: true\` for stacked bars or areas.
 - The first table column is the x-axis; every additional column is a series (1–8). Column headers are the labels.
+- The table's first row is ALWAYS a header row naming the columns — even for pie charts. Never start the table with a data row.
 - Each data row is ONE x-axis entry — one date or one category. For category comparisons the categories go down the first column, one per row (e.g. \`channel | visitors\` with a row per channel) — never across the header.
 - Write dates as ISO 8601 (2026-08-01); the axis is treated as time automatically.
 - Series cells are numbers; leave a cell empty for a missing value. Pie charts take exactly one value column.
