@@ -90,7 +90,7 @@ describe("mountRollmarkDocument", () => {
 
     const tipsBefore = document.querySelectorAll(".rollmark-tooltip").length;
     mark.dispatchEvent(new MouseEvent("pointerover", { bubbles: true, clientX: 40, clientY: 40 }));
-    const tips = [...document.querySelectorAll<HTMLElement>(".rollmark-tooltip")];
+    const tips = Array.from(document.querySelectorAll<HTMLElement>(".rollmark-tooltip"));
     const tip = tips[tips.length - 1]!; // this mount's tooltip is the newest
     expect(tip.style.display).toBe("block");
     expect(tip.textContent).toContain("A · 2");
