@@ -46,10 +46,11 @@ describe("mountRollmarkDocument", () => {
 
   it("degrades mermaid blocks to code when no instance is provided", async () => {
     const container = document.createElement("div");
-    await mountRollmarkDocument(container, doc, { theme: "light" });
+    const m = await mountRollmarkDocument(container, doc, { theme: "light" });
     expect(container.querySelector(".rollmark-chart-svg")).toBeTruthy();
     expect(container.innerHTML).toContain("flowchart LR");
     expect(container.innerHTML).toContain("<code>");
+    m.dispose();
   });
 
   it("shows the mermaid fallback card when rendering throws", async () => {
@@ -59,9 +60,10 @@ describe("mountRollmarkDocument", () => {
         throw new Error("bad diagram");
       }),
     };
-    await mountRollmarkDocument(container, doc, { theme: "light", mermaid });
+    const m = await mountRollmarkDocument(container, doc, { theme: "light", mermaid });
     expect(container.innerHTML).toContain("Diagram could not be rendered: bad diagram");
     expect(container.innerHTML).toContain("flowchart LR");
+    m.dispose();
   });
 
   it("renders the chart fallback card inline for invalid charts", async () => {
@@ -75,5 +77,49 @@ describe("mountRollmarkDocument", () => {
     const mounted = await mountRollmarkDocument(container, doc, { theme: "dark" });
     expect(mounted.theme).toBe("dark");
     expect(container.innerHTML).toContain("#e5e7eb"); // dark text color in the SVG
+    mounted.dispose();
+  });
+
+  it("shows a styled tooltip on mark hover and hides it on leave", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const mounted = await mountRollmarkDocument(container, doc, { theme: "light" });
+
+    const mark = container.querySelector("[data-rm-v]")!;
+    expect(mark.querySelector("title")).toBeNull(); // native title replaced
+
+    const tipsBefore = document.querySelectorAll(".rollmark-tooltip").length;
+    mark.dispatchEvent(new MouseEvent("pointerover", { bubbles: true, clientX: 40, clientY: 40 }));
+    const tips = Array.from(document.querySelectorAll<HTMLElement>(".rollmark-tooltip"));
+    const tip = tips[tips.length - 1]!; // this mount's tooltip is the newest
+    expect(tip.style.display).toBe("block");
+    expect(tip.textContent).toContain("A · 2");
+
+    mark.dispatchEvent(new MouseEvent("pointerout", { bubbles: true }));
+    expect(tip.style.display).toBe("none");
+
+    mounted.dispose();
+    expect(document.querySelectorAll(".rollmark-tooltip").length).toBe(tipsBefore - 1);
+    container.remove();
+  });
+
+  it("keeps native titles when tooltips are disabled", async () => {
+    const container = document.createElement("div");
+    const before = document.querySelectorAll(".rollmark-tooltip").length;
+    await mountRollmarkDocument(container, doc, { theme: "light", tooltips: false });
+    expect(container.querySelector("[data-rm-v] title")).toBeTruthy();
+    expect(document.querySelectorAll(".rollmark-tooltip").length).toBe(before);
+  });
+
+  it("passes palette and color overrides through to charts", async () => {
+    const container = document.createElement("div");
+    const m = await mountRollmarkDocument(container, doc, {
+      theme: "light",
+      palette: "okabe-ito",
+      colors: { grid: "#ABCDEF" },
+    });
+    expect(container.innerHTML).toContain("#0072B2");
+    expect(container.innerHTML).toContain("#ABCDEF");
+    m.dispose();
   });
 });

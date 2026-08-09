@@ -5,6 +5,8 @@ import type { ScaleBand, ScaleContinuousNumeric, ScalePoint } from "d3-scale";
 import { arc, area as d3area, line as d3line, pie as d3pie, stack, stackOffsetDiverging } from "d3-shape";
 import { utcFormat } from "d3-time-format";
 
+import { PALETTES } from "./palettes.js";
+import type { PaletteName } from "./palettes.js";
 import type { ChartSpec } from "./types.js";
 
 /**
@@ -14,30 +16,61 @@ import type { ChartSpec } from "./types.js";
  * DOM-free, so it runs identically in the browser and on the server
  * (email/PDF export is this same function).
  *
- * v1 is deliberately non-interactive: native <title> tooltips only.
+ * Color is consumer-configurable (named palettes, or full overrides) but
+ * never model-configurable — the chart DSL has no color vocabulary. All
+ * colors are baked into the SVG so output works in every context.
+ *
+ * v1 output is deliberately non-interactive: native <title> tooltips only;
+ * richer hover behavior lives in the mount layer.
  */
+
+/** Consumer color overrides. Anything omitted falls back to the theme/palette. */
+export interface ChartColors {
+  /** Series palette, in order; wins over the `palette` option. */
+  series?: string[];
+  text?: string;
+  muted?: string;
+  grid?: string;
+  axis?: string;
+}
 
 export interface RenderSvgOptions {
   theme?: "light" | "dark";
+  /** Named built-in series palette (default "default"). */
+  palette?: PaletteName;
+  /** Custom colors; `colors.series` wins over `palette`. */
+  colors?: ChartColors;
   width?: number;
   height?: number;
 }
-
-const SERIES_COLORS = [
-  "#4E79A7",
-  "#F28E2B",
-  "#59A14F",
-  "#E15759",
-  "#B07AA1",
-  "#76B7B2",
-  "#EDC949",
-  "#9C755F",
-];
 
 const THEMES = {
   light: { text: "#1f2733", muted: "#6b7280", grid: "#e5e7eb", axis: "#d1d5db" },
   dark: { text: "#e5e7eb", muted: "#9ca3af", grid: "#30363d", axis: "#4b5563" },
 } as const;
+
+interface ResolvedColors {
+  text: string;
+  muted: string;
+  grid: string;
+  axis: string;
+  series: string[];
+}
+
+function resolveColors(options: RenderSvgOptions): ResolvedColors {
+  const theme = options.theme ?? "light";
+  const base = THEMES[theme];
+  const paletteSeries = PALETTES[options.palette ?? "default"][theme];
+  const c = options.colors ?? {};
+  const series = c.series && c.series.length > 0 ? c.series : paletteSeries;
+  return {
+    text: c.text ?? base.text,
+    muted: c.muted ?? base.muted,
+    grid: c.grid ?? base.grid,
+    axis: c.axis ?? base.axis,
+    series,
+  };
+}
 
 const FONT = "system-ui, -apple-system, sans-serif";
 
@@ -69,7 +102,7 @@ interface Frame {
   bottom: number;
   innerW: number;
   innerH: number;
-  theme: (typeof THEMES)[keyof typeof THEMES];
+  theme: ResolvedColors;
   parts: string[];
 }
 
@@ -81,7 +114,7 @@ function openSvg(
 ): Frame {
   const width = options.width ?? 640;
   const height = options.height ?? 360;
-  const theme = THEMES[options.theme ?? "light"];
+  const theme = resolveColors(options);
   const hasTitle = Boolean(spec.title);
   const hasLegend = legendCount > 1 && spec.type !== "pie";
   const top = 16 + (hasTitle ? 28 : 0) + (hasLegend ? 24 : 0);
@@ -102,7 +135,7 @@ function openSvg(
     spec.series.forEach((s, i) => {
       const name = s.label ?? s.field;
       parts.push(
-        `<rect x="${x}" y="${y - 9}" width="10" height="10" rx="2" fill="${SERIES_COLORS[i % SERIES_COLORS.length]}"/>`,
+        `<rect x="${x}" y="${y - 9}" width="10" height="10" rx="2" fill="${theme.series[i % theme.series.length]}"/>`,
         `<text x="${x + 15}" y="${y}" font-size="12" fill="${theme.muted}">${esc(name)}</text>`,
       );
       x += 15 + name.length * 6.6 + 18;
@@ -250,7 +283,7 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
   const frame = openSvg(spec, options, spec.series.length, tickLayout.bottom);
   const series: SeriesData[] = spec.series.map((s, i) => ({
     label: s.label ?? s.field,
-    color: SERIES_COLORS[i % SERIES_COLORS.length]!,
+    color: frame.theme.series[i % frame.theme.series.length]!,
     values: rows.map((r) => {
       const v = r[s.field];
       return v === undefined || v === null ? null : (v as number);
@@ -330,9 +363,15 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
   }
   xBaseline(frame);
 
-  const xDisplay = (i: number): string => String(xRaw[i]);
+  const fmtX = temporal ? utcFormat("%b %-d, %Y") : undefined;
+  const xDisplay = (i: number): string =>
+    fmtX ? fmtX(new Date(String(xRaw[i]))) : String(xRaw[i]);
+  // Marks carry a native <title> (works in static contexts) plus data
+  // attributes the mount layer's tooltip engine reads.
   const mark = (i: number, s: SeriesData, v: number): string =>
     `<title>${esc(`${xDisplay(i)} · ${s.label}: ${fmtValue(v)}`)}</title>`;
+  const markAttrs = (i: number, s: SeriesData, v: number): string =>
+    ` data-rm-x="${esc(xDisplay(i))}" data-rm-s="${esc(s.label)}" data-rm-v="${esc(fmtValue(v))}"`;
 
   if (spec.type === "bar" && spec.stack) {
     const layout = stackedLayout(series);
@@ -344,7 +383,7 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
         const top = frame.top + yScale(Math.max(y0, y1));
         const h = Math.abs(yScale(y0) - yScale(y1));
         frame.parts.push(
-          `<rect x="${xPos(i)}" y="${top}" width="${bandwidth}" height="${h}" fill="${s.color}">${mark(i, s, v)}</rect>`,
+          `<rect x="${xPos(i)}" y="${top}" width="${bandwidth}" height="${h}" fill="${s.color}"${markAttrs(i, s, v)}>${mark(i, s, v)}</rect>`,
         );
       });
     });
@@ -360,7 +399,7 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
         const top = frame.top + yScale(Math.max(0, v));
         const h = Math.abs(yScale(v) - yScale(0));
         frame.parts.push(
-          `<rect x="${xPos(i) + si * inner}" y="${top}" width="${Math.max(1, barWidth)}" height="${h}" fill="${s.color}">${mark(i, s, v)}</rect>`,
+          `<rect x="${xPos(i) + si * inner}" y="${top}" width="${Math.max(1, barWidth)}" height="${h}" fill="${s.color}"${markAttrs(i, s, v)}>${mark(i, s, v)}</rect>`,
         );
       });
     });
@@ -370,7 +409,7 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
         const v = s.values[i];
         if (v === null || v === undefined) return;
         frame.parts.push(
-          `<circle cx="${xPos(i)}" cy="${frame.top + yScale(v)}" r="4" fill="${s.color}" fill-opacity="0.85">${mark(i, s, v)}</circle>`,
+          `<circle cx="${xPos(i)}" cy="${frame.top + yScale(v)}" r="4" fill="${s.color}" fill-opacity="0.85"${markAttrs(i, s, v)}>${mark(i, s, v)}</circle>`,
         );
       });
     });
@@ -413,7 +452,7 @@ function renderXY(spec: ChartSpec, options: RenderSvgOptions): string {
         const v = s.values[i];
         if (v === null || v === undefined) return;
         frame.parts.push(
-          `<circle cx="${xPos(i) + bandwidth / 2}" cy="${frame.top + yScale(v)}" r="2.5" fill="${s.color}">${mark(i, s, v)}</circle>`,
+          `<circle cx="${xPos(i) + bandwidth / 2}" cy="${frame.top + yScale(v)}" r="2.5" fill="${s.color}"${markAttrs(i, s, v)}>${mark(i, s, v)}</circle>`,
         );
       });
     });
@@ -474,7 +513,7 @@ function renderPie(spec: ChartSpec, options: RenderSvgOptions): string {
   arcs.forEach((a, i) => {
     const pctText = `${Math.round((a.data.value / total) * 100)}%`;
     frame.parts.push(
-      `<path transform="translate(${cx},${cy})" d="${arcGen(a) ?? ""}" fill="${SERIES_COLORS[i % SERIES_COLORS.length]}"><title>${esc(`${a.data.label}: ${fmtValue(a.data.value)} (${pctText})`)}</title></path>`,
+      `<path transform="translate(${cx},${cy})" d="${arcGen(a) ?? ""}" fill="${frame.theme.series[i % frame.theme.series.length]}" data-rm-x="${esc(a.data.label)}" data-rm-v="${esc(`${fmtValue(a.data.value)} (${pctText})`)}"><title>${esc(`${a.data.label}: ${fmtValue(a.data.value)} (${pctText})`)}</title></path>`,
     );
   });
 
@@ -484,7 +523,7 @@ function renderPie(spec: ChartSpec, options: RenderSvgOptions): string {
     const ly = frame.top + 12 + i * 22;
     const pctText = `${Math.round((a.data.value / total) * 100)}%`;
     frame.parts.push(
-      `<rect x="${lx}" y="${ly - 9}" width="10" height="10" rx="2" fill="${SERIES_COLORS[i % SERIES_COLORS.length]}"/>`,
+      `<rect x="${lx}" y="${ly - 9}" width="10" height="10" rx="2" fill="${frame.theme.series[i % frame.theme.series.length]}"/>`,
       `<text x="${lx + 16}" y="${ly}" font-size="12" fill="${frame.theme.text}">${esc(truncate(a.data.label, 22))}</text>`,
       `<text x="${lx + 16 + 150}" y="${ly}" font-size="12" fill="${frame.theme.muted}">${esc(`${fmtValue(a.data.value)} · ${pctText}`)}</text>`,
     );

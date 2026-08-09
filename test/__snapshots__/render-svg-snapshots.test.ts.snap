@@ -48,12 +48,12 @@ exports[`renderChartSVG snapshots > bar-grouped (light) 1`] = `
 <text x="340" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>Onboarding</title>Onboarding</text>
 <text x="526.2295081967213" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>API</title>API</text>
 <line x1="56" y1="320" x2="624" y2="320" stroke="#d1d5db" stroke-width="1"/>
-<rect x="83.93442622950818" y="129.60000000000002" width="61.455737704918036" height="190.39999999999998" fill="#4E79A7"><title>Billing · Opened: 34</title></rect>
-<rect x="270.1639344262295" y="202.4" width="61.455737704918036" height="117.6" fill="#4E79A7"><title>Onboarding · Opened: 21</title></rect>
-<rect x="456.39344262295083" y="68" width="61.455737704918036" height="252" fill="#4E79A7"><title>API · Opened: 45</title></rect>
-<rect x="153.77049180327867" y="157.6" width="61.455737704918036" height="162.4" fill="#F28E2B"><title>Billing · Resolved: 29</title></rect>
-<rect x="340" y="196.79999999999998" width="61.455737704918036" height="123.20000000000002" fill="#F28E2B"><title>Onboarding · Resolved: 22</title></rect>
-<rect x="526.2295081967213" y="146.4" width="61.455737704918036" height="173.6" fill="#F28E2B"><title>API · Resolved: 31</title></rect>
+<rect x="83.93442622950818" y="129.60000000000002" width="61.455737704918036" height="190.39999999999998" fill="#4E79A7" data-rm-x="Billing" data-rm-s="Opened" data-rm-v="34"><title>Billing · Opened: 34</title></rect>
+<rect x="270.1639344262295" y="202.4" width="61.455737704918036" height="117.6" fill="#4E79A7" data-rm-x="Onboarding" data-rm-s="Opened" data-rm-v="21"><title>Onboarding · Opened: 21</title></rect>
+<rect x="456.39344262295083" y="68" width="61.455737704918036" height="252" fill="#4E79A7" data-rm-x="API" data-rm-s="Opened" data-rm-v="45"><title>API · Opened: 45</title></rect>
+<rect x="153.77049180327867" y="157.6" width="61.455737704918036" height="162.4" fill="#F28E2B" data-rm-x="Billing" data-rm-s="Resolved" data-rm-v="29"><title>Billing · Resolved: 29</title></rect>
+<rect x="340" y="196.79999999999998" width="61.455737704918036" height="123.20000000000002" fill="#F28E2B" data-rm-x="Onboarding" data-rm-s="Resolved" data-rm-v="22"><title>Onboarding · Resolved: 22</title></rect>
+<rect x="526.2295081967213" y="146.4" width="61.455737704918036" height="173.6" fill="#F28E2B" data-rm-x="API" data-rm-s="Resolved" data-rm-v="31"><title>API · Resolved: 31</title></rect>
 </svg>"
 `;
 
@@ -82,10 +82,10 @@ exports[`renderChartSVG snapshots > bar-stacked-with-negative (light) 1`] = `
 <text x="201.46341463414632" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>Q1</title>Q1</text>
 <text x="478.5365853658537" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>Q2</title>Q2</text>
 <line x1="56" y1="320" x2="624" y2="320" stroke="#d1d5db" stroke-width="1"/>
-<rect x="97.56097560975604" y="120" width="207.80487804878052" height="160.00000000000003" fill="#4E79A7"><title>Q1 · a: 40</title></rect>
-<rect x="374.6341463414634" y="140" width="207.80487804878052" height="140.00000000000006" fill="#4E79A7"><title>Q2 · a: 35</title></rect>
-<rect x="97.56097560975604" y="40" width="207.80487804878052" height="80" fill="#F28E2B"><title>Q1 · b: 20</title></rect>
-<rect x="374.6341463414634" y="280" width="207.80487804878052" height="39.99999999999997" fill="#F28E2B"><title>Q2 · b: −10</title></rect>
+<rect x="97.56097560975604" y="120" width="207.80487804878052" height="160.00000000000003" fill="#4E79A7" data-rm-x="Q1" data-rm-s="a" data-rm-v="40"><title>Q1 · a: 40</title></rect>
+<rect x="374.6341463414634" y="140" width="207.80487804878052" height="140.00000000000006" fill="#4E79A7" data-rm-x="Q2" data-rm-s="a" data-rm-v="35"><title>Q2 · a: 35</title></rect>
+<rect x="97.56097560975604" y="40" width="207.80487804878052" height="80" fill="#F28E2B" data-rm-x="Q1" data-rm-s="b" data-rm-v="20"><title>Q1 · b: 20</title></rect>
+<rect x="374.6341463414634" y="280" width="207.80487804878052" height="39.99999999999997" fill="#F28E2B" data-rm-x="Q2" data-rm-s="b" data-rm-v="−10"><title>Q2 · b: −10</title></rect>
 </svg>"
 `;
 
@@ -110,12 +110,12 @@ exports[`renderChartSVG snapshots > dark theme variant 1`] = `
 <text x="340" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>Onboarding</title>Onboarding</text>
 <text x="526.2295081967213" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>API</title>API</text>
 <line x1="56" y1="320" x2="624" y2="320" stroke="#4b5563" stroke-width="1"/>
-<rect x="83.93442622950818" y="129.60000000000002" width="61.455737704918036" height="190.39999999999998" fill="#4E79A7"><title>Billing · Opened: 34</title></rect>
-<rect x="270.1639344262295" y="202.4" width="61.455737704918036" height="117.6" fill="#4E79A7"><title>Onboarding · Opened: 21</title></rect>
-<rect x="456.39344262295083" y="68" width="61.455737704918036" height="252" fill="#4E79A7"><title>API · Opened: 45</title></rect>
-<rect x="153.77049180327867" y="157.6" width="61.455737704918036" height="162.4" fill="#F28E2B"><title>Billing · Resolved: 29</title></rect>
-<rect x="340" y="196.79999999999998" width="61.455737704918036" height="123.20000000000002" fill="#F28E2B"><title>Onboarding · Resolved: 22</title></rect>
-<rect x="526.2295081967213" y="146.4" width="61.455737704918036" height="173.6" fill="#F28E2B"><title>API · Resolved: 31</title></rect>
+<rect x="83.93442622950818" y="129.60000000000002" width="61.455737704918036" height="190.39999999999998" fill="#4E79A7" data-rm-x="Billing" data-rm-s="Opened" data-rm-v="34"><title>Billing · Opened: 34</title></rect>
+<rect x="270.1639344262295" y="202.4" width="61.455737704918036" height="117.6" fill="#4E79A7" data-rm-x="Onboarding" data-rm-s="Opened" data-rm-v="21"><title>Onboarding · Opened: 21</title></rect>
+<rect x="456.39344262295083" y="68" width="61.455737704918036" height="252" fill="#4E79A7" data-rm-x="API" data-rm-s="Opened" data-rm-v="45"><title>API · Opened: 45</title></rect>
+<rect x="153.77049180327867" y="157.6" width="61.455737704918036" height="162.4" fill="#F28E2B" data-rm-x="Billing" data-rm-s="Resolved" data-rm-v="29"><title>Billing · Resolved: 29</title></rect>
+<rect x="340" y="196.79999999999998" width="61.455737704918036" height="123.20000000000002" fill="#F28E2B" data-rm-x="Onboarding" data-rm-s="Resolved" data-rm-v="22"><title>Onboarding · Resolved: 22</title></rect>
+<rect x="526.2295081967213" y="146.4" width="61.455737704918036" height="173.6" fill="#F28E2B" data-rm-x="API" data-rm-s="Resolved" data-rm-v="31"><title>API · Resolved: 31</title></rect>
 </svg>"
 `;
 
@@ -149,23 +149,23 @@ exports[`renderChartSVG snapshots > line-temporal-with-gap (light) 1`] = `
 <text x="624" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>00:00</title>00:00</text>
 <line x1="56" y1="320" x2="624" y2="320" stroke="#d1d5db" stroke-width="1"/>
 <path d="M56,106.1ZM434.667,59.525L624,66.425" fill="none" stroke="#4E79A7" stroke-width="2" stroke-linejoin="round"><title>Visitors</title></path>
-<circle cx="56" cy="106.1" r="2.5" fill="#4E79A7"><title>2026-08-01 · Visitors: 1,240</title></circle>
-<circle cx="434.66666666666663" cy="59.525000000000006" r="2.5" fill="#4E79A7"><title>2026-08-03 · Visitors: 1,510</title></circle>
-<circle cx="624" cy="66.42500000000001" r="2.5" fill="#4E79A7"><title>2026-08-04 · Visitors: 1,470</title></circle>
+<circle cx="56" cy="106.1" r="2.5" fill="#4E79A7" data-rm-x="Aug 1, 2026" data-rm-s="Visitors" data-rm-v="1,240"><title>Aug 1, 2026 · Visitors: 1,240</title></circle>
+<circle cx="434.66666666666663" cy="59.525000000000006" r="2.5" fill="#4E79A7" data-rm-x="Aug 3, 2026" data-rm-s="Visitors" data-rm-v="1,510"><title>Aug 3, 2026 · Visitors: 1,510</title></circle>
+<circle cx="624" cy="66.42500000000001" r="2.5" fill="#4E79A7" data-rm-x="Aug 4, 2026" data-rm-s="Visitors" data-rm-v="1,470"><title>Aug 4, 2026 · Visitors: 1,470</title></circle>
 </svg>"
 `;
 
 exports[`renderChartSVG snapshots > pie-with-other-bucket (light) 1`] = `
 "<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" class="rollmark-chart-svg" role="img" aria-label="Subscribers. Snapshot fixture." font-family="system-ui, -apple-system, sans-serif">
 <text x="16" y="28" font-size="15" font-weight="600" fill="#1f2733">Subscribers</text>
-<path transform="translate(194,182)" d="M0.828,-137.998A138,138,0,0,1,119.704,-68.665L74.06,-42.845A85.56,85.56,0,0,0,0.828,-85.556Z" fill="#4E79A7"><title>Plan 1: 1,000 (17%)</title></path>
-<path transform="translate(194,182)" d="M120.52,-67.224A138,138,0,0,1,124.846,58.799L77.538,36.171A85.56,85.56,0,0,0,74.875,-41.404Z" fill="#F28E2B"><title>Plan 2: 910 (15%)</title></path>
-<path transform="translate(194,182)" d="M124.132,60.293A138,138,0,0,1,36.106,133.193L22.689,82.497A85.56,85.56,0,0,0,76.824,37.665Z" fill="#59A14F"><title>Plan 3: 820 (14%)</title></path>
-<path transform="translate(194,182)" d="M34.505,133.617A138,138,0,0,1,-66.905,120.697L-41.206,74.984A85.56,85.56,0,0,0,21.088,82.92Z" fill="#E15759"><title>Plan 4: 730 (12%)</title></path>
-<path transform="translate(194,182)" d="M-68.349,119.885A138,138,0,0,1,-127.7,52.313L-79.054,32.725A85.56,85.56,0,0,0,-42.649,74.172Z" fill="#B07AA1"><title>Plan 5: 640 (11%)</title></path>
-<path transform="translate(194,182)" d="M-128.319,50.777A138,138,0,0,1,-135.464,-26.333L-84.047,-16.018A85.56,85.56,0,0,0,-79.673,31.189Z" fill="#76B7B2"><title>Plan 6: 550 (9%)</title></path>
-<path transform="translate(194,182)" d="M-135.138,-27.957A138,138,0,0,1,-107.499,-86.533L-66.846,-53.405A85.56,85.56,0,0,0,-83.722,-17.641Z" fill="#EDC949"><title>Plan 7: 460 (8%)</title></path>
-<path transform="translate(194,182)" d="M-106.453,-87.816A138,138,0,0,1,-0.828,-137.998L-0.828,-85.556A85.56,85.56,0,0,0,-65.8,-54.689Z" fill="#9C755F"><title>Other: 840 (14%)</title></path>
+<path transform="translate(194,182)" d="M0.828,-137.998A138,138,0,0,1,119.704,-68.665L74.06,-42.845A85.56,85.56,0,0,0,0.828,-85.556Z" fill="#4E79A7" data-rm-x="Plan 1" data-rm-v="1,000 (17%)"><title>Plan 1: 1,000 (17%)</title></path>
+<path transform="translate(194,182)" d="M120.52,-67.224A138,138,0,0,1,124.846,58.799L77.538,36.171A85.56,85.56,0,0,0,74.875,-41.404Z" fill="#F28E2B" data-rm-x="Plan 2" data-rm-v="910 (15%)"><title>Plan 2: 910 (15%)</title></path>
+<path transform="translate(194,182)" d="M124.132,60.293A138,138,0,0,1,36.106,133.193L22.689,82.497A85.56,85.56,0,0,0,76.824,37.665Z" fill="#59A14F" data-rm-x="Plan 3" data-rm-v="820 (14%)"><title>Plan 3: 820 (14%)</title></path>
+<path transform="translate(194,182)" d="M34.505,133.617A138,138,0,0,1,-66.905,120.697L-41.206,74.984A85.56,85.56,0,0,0,21.088,82.92Z" fill="#E15759" data-rm-x="Plan 4" data-rm-v="730 (12%)"><title>Plan 4: 730 (12%)</title></path>
+<path transform="translate(194,182)" d="M-68.349,119.885A138,138,0,0,1,-127.7,52.313L-79.054,32.725A85.56,85.56,0,0,0,-42.649,74.172Z" fill="#B07AA1" data-rm-x="Plan 5" data-rm-v="640 (11%)"><title>Plan 5: 640 (11%)</title></path>
+<path transform="translate(194,182)" d="M-128.319,50.777A138,138,0,0,1,-135.464,-26.333L-84.047,-16.018A85.56,85.56,0,0,0,-79.673,31.189Z" fill="#76B7B2" data-rm-x="Plan 6" data-rm-v="550 (9%)"><title>Plan 6: 550 (9%)</title></path>
+<path transform="translate(194,182)" d="M-135.138,-27.957A138,138,0,0,1,-107.499,-86.533L-66.846,-53.405A85.56,85.56,0,0,0,-83.722,-17.641Z" fill="#EDC949" data-rm-x="Plan 7" data-rm-v="460 (8%)"><title>Plan 7: 460 (8%)</title></path>
+<path transform="translate(194,182)" d="M-106.453,-87.816A138,138,0,0,1,-0.828,-137.998L-0.828,-85.556A85.56,85.56,0,0,0,-65.8,-54.689Z" fill="#9C755F" data-rm-x="Other" data-rm-v="840 (14%)"><title>Other: 840 (14%)</title></path>
 <rect x="364" y="47" width="10" height="10" rx="2" fill="#4E79A7"/>
 <text x="380" y="56" font-size="12" fill="#1f2733">Plan 1</text>
 <text x="530" y="56" font-size="12" fill="#6b7280">1,000 · 17%</text>
@@ -218,8 +218,8 @@ exports[`renderChartSVG snapshots > scatter-numeric (light) 1`] = `
 <text x="497.77777777777777" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>40</title>40</text>
 <text x="624" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>50</title>50</text>
 <line x1="56" y1="320" x2="624" y2="320" stroke="#d1d5db" stroke-width="1"/>
-<circle cx="118.98488888888889" cy="320" r="4" fill="#4E79A7" fill-opacity="0.85"><title>9.99 · rating: 3.8</title></circle>
-<circle cx="302.1333333333333" cy="83.42857142857129" r="4" fill="#4E79A7" fill-opacity="0.85"><title>24.5 · rating: 4.4</title></circle>
-<circle cx="623.8737777777778" cy="44" r="4" fill="#4E79A7" fill-opacity="0.85"><title>49.99 · rating: 4.5</title></circle>
+<circle cx="118.98488888888889" cy="320" r="4" fill="#4E79A7" fill-opacity="0.85" data-rm-x="9.99" data-rm-s="rating" data-rm-v="3.8"><title>9.99 · rating: 3.8</title></circle>
+<circle cx="302.1333333333333" cy="83.42857142857129" r="4" fill="#4E79A7" fill-opacity="0.85" data-rm-x="24.5" data-rm-s="rating" data-rm-v="4.4"><title>24.5 · rating: 4.4</title></circle>
+<circle cx="623.8737777777778" cy="44" r="4" fill="#4E79A7" fill-opacity="0.85" data-rm-x="49.99" data-rm-s="rating" data-rm-v="4.5"><title>49.99 · rating: 4.5</title></circle>
 </svg>"
 `;

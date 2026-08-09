@@ -117,7 +117,30 @@ const GROUPS: Record<string, Variant[]> = {
   ],
 };
 
+const PALETTE_SAMPLE = GROUPS.bar![2]!.dsl; // grouped, three series
+const PALETTE_SAMPLE_LINE = GROUPS.line![1]!.dsl; // three series with a gap
+
 const sections: string[] = [];
+
+// Palette dimension: one bar + one line sample per named palette, both themes.
+{
+  const { PALETTES } = await import("../src/palettes.js");
+  const cards = Object.keys(PALETTES)
+    .flatMap((name) => {
+      return [PALETTE_SAMPLE, PALETTE_SAMPLE_LINE].map((dsl, i) => {
+        const parsed = parseChartDsl(dsl);
+        if (!parsed.ok) throw new Error(`palette sample: ${parsed.errors[0]!.message}`);
+        const palette = name as import("../src/palettes.js").PaletteName;
+        const light = renderChartSVG(parsed.spec, { theme: "light", palette });
+        const dark = renderChartSVG(parsed.spec, { theme: "dark", palette });
+        return `<div class="card"><h3>palette: ${name} — ${i === 0 ? "bars" : "lines"}</h3>
+<div class="pair"><div class="light">${light}</div><div class="dark">${dark}</div></div></div>`;
+      });
+    })
+    .join("\n");
+  sections.push(`<section><h2>palettes</h2>${cards}</section>`);
+}
+
 for (const [group, variants] of Object.entries(GROUPS)) {
   const cards = variants
     .map((v) => {

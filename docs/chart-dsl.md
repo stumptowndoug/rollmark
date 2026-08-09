@@ -73,6 +73,8 @@ Write dates as ISO 8601 — `2026-08-01` or `2026-08-08T14:30:00Z`. When **every
 
 Colors, fonts, sizes, spacing, gridlines, legends, animation, tooltips. The renderer owns all presentation so every chart in a product looks consistent, themes correctly in light/dark, and stays accessible. Styling keys in the payload are ignored. This is a load-bearing design principle — see SPEC.md design goal 2.
 
+(The *application* embedding Rollmark can choose a named palette or supply brand colors, and hover tooltips appear automatically — but those are renderer options, invisible to the document and to you as its author.)
+
 ## The JSON alternate
 
 A payload starting with `{` is parsed as JSON instead — the same semantic model in object form (see SPEC.md §2.2 and [`schemas/chart.v1.json`](../schemas/chart.v1.json)). It exists for machine producers, e.g. structured-output pipelines that generate a validated object and serialize it into a document. When writing by hand or prompting a model, use the DSL.

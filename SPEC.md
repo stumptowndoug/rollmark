@@ -284,4 +284,6 @@ A Rollmark renderer shows a line chart and a flowchart between the paragraphs. G
 
 Rollmark ships its own SVG renderer (`renderChartSVG`): ChartSpec in, static, theme-aware, accessible SVG out. d3 micro-modules (`d3-scale`, `d3-shape`, `d3-array`, `d3-format`, `d3-time-format`) provide the math; Rollmark owns every visual opinion — layout, palette, typography, axes, legends, the donut form for `pie`, tail bucketing, and gap handling. It is DOM-free and runs identically in the browser and on the server, so static export (§8) is the same code path. v1 output is non-interactive by design; native `<title>` elements provide hover text.
 
+Presentation is consumer-configurable without touching the document format: the renderer accepts a theme, a named series palette, or full color overrides, all baked into the SVG so output works in every context. The mount layer additionally provides automatic hover tooltips derived from the chart data. None of this is expressible in the payload — color and interaction remain outside the producer contract.
+
 The renderer is replaceable per design goal 3 — `ChartSpec` remains the boundary, and alternative compilers (e.g. to ECharts option objects) are conforming.
