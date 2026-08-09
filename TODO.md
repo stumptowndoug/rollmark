@@ -20,6 +20,11 @@
 
 ## ✅ Done
 
+- [x] v1 cleanup: ECharts compiler removed; design docs moved to docs/design/
+- [x] Renderer snapshot tests (7 baselines incl. dark theme) + parser/renderer fuzz tests (88 tests total)
+- [x] README rewritten as the front door: what/why/how, quick start, API table, evals story, scope & roadmap
+- [x] docs/chart-dsl.md — friendly authoring guide with the eval-observed common mistakes
+
 - [x] DSL becomes canonical chart syntax (JSON accepted as alternate via leading `{`)
   - [x] `src/parse-dsl.ts`: bare type line, quoting, thousands coercion, temporal inference
 - [x] Extend ChartSpec: area, scatter, pie + stack (per-type validation rules)

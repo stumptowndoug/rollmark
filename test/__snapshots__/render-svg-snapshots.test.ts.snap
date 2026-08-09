@@ -1,0 +1,224 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderChartSVG snapshots > area-stacked (light) 1`] = `
+"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" class="rollmark-chart-svg" role="img" aria-label="Snapshot fixture." font-family="system-ui, -apple-system, sans-serif">
+<rect x="16" y="15" width="10" height="10" rx="2" fill="#4E79A7"/>
+<text x="31" y="24" font-size="12" fill="#6b7280">api</text>
+<rect x="68.8" y="15" width="10" height="10" rx="2" fill="#F28E2B"/>
+<text x="83.8" y="24" font-size="12" fill="#6b7280">jobs</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="324" font-size="11" text-anchor="end" fill="#6b7280">0</text>
+<line x1="56" y1="269.09090909090907" x2="624" y2="269.09090909090907" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="273.09090909090907" font-size="11" text-anchor="end" fill="#6b7280">20</text>
+<line x1="56" y1="218.1818181818182" x2="624" y2="218.1818181818182" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="222.1818181818182" font-size="11" text-anchor="end" fill="#6b7280">40</text>
+<line x1="56" y1="167.27272727272728" x2="624" y2="167.27272727272728" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="171.27272727272728" font-size="11" text-anchor="end" fill="#6b7280">60</text>
+<line x1="56" y1="116.36363636363636" x2="624" y2="116.36363636363636" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="120.36363636363636" font-size="11" text-anchor="end" fill="#6b7280">80</text>
+<line x1="56" y1="65.45454545454547" x2="624" y2="65.45454545454547" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="69.45454545454547" font-size="11" text-anchor="end" fill="#6b7280">100</text>
+<text x="150.66666666666666" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>Mon</title>Mon</text>
+<text x="340" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>Tue</title>Tue</text>
+<text x="529.3333333333334" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>Wed</title>Wed</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#d1d5db" stroke-width="1"/>
+<path d="M150.667,88.364L340,106.182L529.333,78.182L529.333,320L340,320L150.667,320Z" fill="#4E79A7" fill-opacity="0.75"><title>api</title></path>
+<path d="M150.667,68L340,52.727L529.333,52.727L529.333,78.182L340,106.182L150.667,88.364Z" fill="#F28E2B" fill-opacity="0.75"><title>jobs</title></path>
+</svg>"
+`;
+
+exports[`renderChartSVG snapshots > bar-grouped (light) 1`] = `
+"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" class="rollmark-chart-svg" role="img" aria-label="Tickets by area. Snapshot fixture." font-family="system-ui, -apple-system, sans-serif">
+<text x="16" y="28" font-size="15" font-weight="600" fill="#1f2733">Tickets by area</text>
+<rect x="16" y="39" width="10" height="10" rx="2" fill="#4E79A7"/>
+<text x="31" y="48" font-size="12" fill="#6b7280">Opened</text>
+<rect x="88.6" y="39" width="10" height="10" rx="2" fill="#F28E2B"/>
+<text x="103.6" y="48" font-size="12" fill="#6b7280">Resolved</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="324" font-size="11" text-anchor="end" fill="#6b7280">0</text>
+<line x1="56" y1="264" x2="624" y2="264" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="268" font-size="11" text-anchor="end" fill="#6b7280">10</text>
+<line x1="56" y1="208" x2="624" y2="208" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="212" font-size="11" text-anchor="end" fill="#6b7280">20</text>
+<line x1="56" y1="152" x2="624" y2="152" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="156" font-size="11" text-anchor="end" fill="#6b7280">30</text>
+<line x1="56" y1="96.00000000000001" x2="624" y2="96.00000000000001" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="100.00000000000001" font-size="11" text-anchor="end" fill="#6b7280">40</text>
+<text x="153.77049180327867" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>Billing</title>Billing</text>
+<text x="340" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>Onboarding</title>Onboarding</text>
+<text x="526.2295081967213" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>API</title>API</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#d1d5db" stroke-width="1"/>
+<rect x="83.93442622950818" y="129.60000000000002" width="68.8360655737705" height="190.39999999999998" fill="#4E79A7"><title>Billing · Opened: 34</title></rect>
+<rect x="270.1639344262295" y="202.4" width="68.8360655737705" height="117.6" fill="#4E79A7"><title>Onboarding · Opened: 21</title></rect>
+<rect x="456.39344262295083" y="68" width="68.8360655737705" height="252" fill="#4E79A7"><title>API · Opened: 45</title></rect>
+<rect x="153.77049180327867" y="157.6" width="68.8360655737705" height="162.4" fill="#F28E2B"><title>Billing · Resolved: 29</title></rect>
+<rect x="340" y="196.79999999999998" width="68.8360655737705" height="123.20000000000002" fill="#F28E2B"><title>Onboarding · Resolved: 22</title></rect>
+<rect x="526.2295081967213" y="146.4" width="68.8360655737705" height="173.6" fill="#F28E2B"><title>API · Resolved: 31</title></rect>
+</svg>"
+`;
+
+exports[`renderChartSVG snapshots > bar-stacked-with-negative (light) 1`] = `
+"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" class="rollmark-chart-svg" role="img" aria-label="Snapshot fixture." font-family="system-ui, -apple-system, sans-serif">
+<rect x="16" y="15" width="10" height="10" rx="2" fill="#4E79A7"/>
+<text x="31" y="24" font-size="12" fill="#6b7280">a</text>
+<rect x="55.6" y="15" width="10" height="10" rx="2" fill="#F28E2B"/>
+<text x="70.6" y="24" font-size="12" fill="#6b7280">b</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="324" font-size="11" text-anchor="end" fill="#6b7280">−10</text>
+<line x1="56" y1="280" x2="624" y2="280" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="284" font-size="11" text-anchor="end" fill="#6b7280">0</text>
+<line x1="56" y1="240" x2="624" y2="240" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="244" font-size="11" text-anchor="end" fill="#6b7280">10</text>
+<line x1="56" y1="200" x2="624" y2="200" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="204" font-size="11" text-anchor="end" fill="#6b7280">20</text>
+<line x1="56" y1="160" x2="624" y2="160" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="164" font-size="11" text-anchor="end" fill="#6b7280">30</text>
+<line x1="56" y1="120" x2="624" y2="120" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="124" font-size="11" text-anchor="end" fill="#6b7280">40</text>
+<line x1="56" y1="80.00000000000001" x2="624" y2="80.00000000000001" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="84.00000000000001" font-size="11" text-anchor="end" fill="#6b7280">50</text>
+<line x1="56" y1="40" x2="624" y2="40" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="44" font-size="11" text-anchor="end" fill="#6b7280">60</text>
+<text x="201.46341463414632" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>Q1</title>Q1</text>
+<text x="478.5365853658537" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>Q2</title>Q2</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#d1d5db" stroke-width="1"/>
+<rect x="97.56097560975604" y="120" width="207.80487804878052" height="160.00000000000003" fill="#4E79A7"><title>Q1 · a: 40</title></rect>
+<rect x="374.6341463414634" y="140" width="207.80487804878052" height="140.00000000000006" fill="#4E79A7"><title>Q2 · a: 35</title></rect>
+<rect x="97.56097560975604" y="40" width="207.80487804878052" height="80" fill="#F28E2B"><title>Q1 · b: 20</title></rect>
+<rect x="374.6341463414634" y="280" width="207.80487804878052" height="39.99999999999997" fill="#F28E2B"><title>Q2 · b: −10</title></rect>
+</svg>"
+`;
+
+exports[`renderChartSVG snapshots > dark theme variant 1`] = `
+"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" class="rollmark-chart-svg" role="img" aria-label="Tickets by area. Snapshot fixture." font-family="system-ui, -apple-system, sans-serif">
+<text x="16" y="28" font-size="15" font-weight="600" fill="#e5e7eb">Tickets by area</text>
+<rect x="16" y="39" width="10" height="10" rx="2" fill="#4E79A7"/>
+<text x="31" y="48" font-size="12" fill="#9ca3af">Opened</text>
+<rect x="88.6" y="39" width="10" height="10" rx="2" fill="#F28E2B"/>
+<text x="103.6" y="48" font-size="12" fill="#9ca3af">Resolved</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="324" font-size="11" text-anchor="end" fill="#9ca3af">0</text>
+<line x1="56" y1="264" x2="624" y2="264" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="268" font-size="11" text-anchor="end" fill="#9ca3af">10</text>
+<line x1="56" y1="208" x2="624" y2="208" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="212" font-size="11" text-anchor="end" fill="#9ca3af">20</text>
+<line x1="56" y1="152" x2="624" y2="152" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="156" font-size="11" text-anchor="end" fill="#9ca3af">30</text>
+<line x1="56" y1="96.00000000000001" x2="624" y2="96.00000000000001" stroke="#30363d" stroke-width="1"/>
+<text x="48" y="100.00000000000001" font-size="11" text-anchor="end" fill="#9ca3af">40</text>
+<text x="153.77049180327867" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>Billing</title>Billing</text>
+<text x="340" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>Onboarding</title>Onboarding</text>
+<text x="526.2295081967213" y="338" font-size="11" text-anchor="middle" fill="#9ca3af"><title>API</title>API</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#4b5563" stroke-width="1"/>
+<rect x="83.93442622950818" y="129.60000000000002" width="68.8360655737705" height="190.39999999999998" fill="#4E79A7"><title>Billing · Opened: 34</title></rect>
+<rect x="270.1639344262295" y="202.4" width="68.8360655737705" height="117.6" fill="#4E79A7"><title>Onboarding · Opened: 21</title></rect>
+<rect x="456.39344262295083" y="68" width="68.8360655737705" height="252" fill="#4E79A7"><title>API · Opened: 45</title></rect>
+<rect x="153.77049180327867" y="157.6" width="68.8360655737705" height="162.4" fill="#F28E2B"><title>Billing · Resolved: 29</title></rect>
+<rect x="340" y="196.79999999999998" width="68.8360655737705" height="123.20000000000002" fill="#F28E2B"><title>Onboarding · Resolved: 22</title></rect>
+<rect x="526.2295081967213" y="146.4" width="68.8360655737705" height="173.6" fill="#F28E2B"><title>API · Resolved: 31</title></rect>
+</svg>"
+`;
+
+exports[`renderChartSVG snapshots > line-temporal-with-gap (light) 1`] = `
+"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" class="rollmark-chart-svg" role="img" aria-label="Daily visitors. Snapshot fixture." font-family="system-ui, -apple-system, sans-serif">
+<text x="16" y="28" font-size="15" font-weight="600" fill="#1f2733">Daily visitors</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="324" font-size="11" text-anchor="end" fill="#6b7280">0</text>
+<line x1="56" y1="285.5" x2="624" y2="285.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="289.5" font-size="11" text-anchor="end" fill="#6b7280">200</text>
+<line x1="56" y1="251" x2="624" y2="251" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="255" font-size="11" text-anchor="end" fill="#6b7280">400</text>
+<line x1="56" y1="216.5" x2="624" y2="216.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="220.5" font-size="11" text-anchor="end" fill="#6b7280">600</text>
+<line x1="56" y1="182" x2="624" y2="182" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="186" font-size="11" text-anchor="end" fill="#6b7280">800</text>
+<line x1="56" y1="147.5" x2="624" y2="147.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="151.5" font-size="11" text-anchor="end" fill="#6b7280">1,000</text>
+<line x1="56" y1="113" x2="624" y2="113" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="117" font-size="11" text-anchor="end" fill="#6b7280">1,200</text>
+<line x1="56" y1="78.5" x2="624" y2="78.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="82.5" font-size="11" text-anchor="end" fill="#6b7280">1,400</text>
+<line x1="56" y1="44" x2="624" y2="44" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="48" font-size="11" text-anchor="end" fill="#6b7280">1,600</text>
+<text x="111.22222222222223" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>00:00</title>00:00</text>
+<text x="205.88888888888889" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>12:00</title>12:00</text>
+<text x="300.55555555555554" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>00:00</title>00:00</text>
+<text x="395.22222222222223" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>12:00</title>12:00</text>
+<text x="489.88888888888886" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>00:00</title>00:00</text>
+<text x="584.5555555555555" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>12:00</title>12:00</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#d1d5db" stroke-width="1"/>
+<path d="M56,106.1ZM434.667,59.525L624,66.425" fill="none" stroke="#4E79A7" stroke-width="2" stroke-linejoin="round"><title>Visitors</title></path>
+<circle cx="56" cy="106.1" r="2.5" fill="#4E79A7"><title>2026-08-01 · Visitors: 1,240</title></circle>
+<circle cx="434.66666666666663" cy="59.525000000000006" r="2.5" fill="#4E79A7"><title>2026-08-03 · Visitors: 1,510</title></circle>
+<circle cx="624" cy="66.42500000000001" r="2.5" fill="#4E79A7"><title>2026-08-04 · Visitors: 1,470</title></circle>
+</svg>"
+`;
+
+exports[`renderChartSVG snapshots > pie-with-other-bucket (light) 1`] = `
+"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" class="rollmark-chart-svg" role="img" aria-label="Subscribers. Snapshot fixture." font-family="system-ui, -apple-system, sans-serif">
+<text x="16" y="28" font-size="15" font-weight="600" fill="#1f2733">Subscribers</text>
+<path transform="translate(194,182)" d="M0,-138A138,138,0,0,1,120.114,-67.946L74.471,-42.126A85.56,85.56,0,0,0,0,-85.56Z" fill="#4E79A7"><title>Plan 1: 1,000 (17%)</title></path>
+<path transform="translate(194,182)" d="M120.114,-67.946A138,138,0,0,1,124.491,59.548L77.185,36.919A85.56,85.56,0,0,0,74.471,-42.126Z" fill="#F28E2B"><title>Plan 2: 910 (15%)</title></path>
+<path transform="translate(194,182)" d="M124.491,59.548A138,138,0,0,1,35.306,133.407L21.89,82.712A85.56,85.56,0,0,0,77.185,36.919Z" fill="#59A14F"><title>Plan 3: 820 (14%)</title></path>
+<path transform="translate(194,182)" d="M35.306,133.407A138,138,0,0,1,-67.628,120.293L-41.93,74.582A85.56,85.56,0,0,0,21.89,82.712Z" fill="#E15759"><title>Plan 4: 730 (12%)</title></path>
+<path transform="translate(194,182)" d="M-67.628,120.293A138,138,0,0,1,-128.012,51.546L-79.367,31.958A85.56,85.56,0,0,0,-41.93,74.582Z" fill="#B07AA1"><title>Plan 5: 640 (11%)</title></path>
+<path transform="translate(194,182)" d="M-128.012,51.546A138,138,0,0,1,-135.304,-27.146L-83.888,-16.83A85.56,85.56,0,0,0,-79.367,31.958Z" fill="#76B7B2"><title>Plan 6: 550 (9%)</title></path>
+<path transform="translate(194,182)" d="M-135.304,-27.146A138,138,0,0,1,-106.978,-87.176L-66.326,-54.049A85.56,85.56,0,0,0,-83.888,-16.83Z" fill="#EDC949"><title>Plan 7: 460 (8%)</title></path>
+<path transform="translate(194,182)" d="M-106.978,-87.176A138,138,0,0,1,0,-138L0,-85.56A85.56,85.56,0,0,0,-66.326,-54.049Z" fill="#9C755F"><title>Other: 840 (14%)</title></path>
+<rect x="364" y="47" width="10" height="10" rx="2" fill="#4E79A7"/>
+<text x="380" y="56" font-size="12" fill="#1f2733">Plan 1</text>
+<text x="530" y="56" font-size="12" fill="#6b7280">1,000 · 17%</text>
+<rect x="364" y="69" width="10" height="10" rx="2" fill="#F28E2B"/>
+<text x="380" y="78" font-size="12" fill="#1f2733">Plan 2</text>
+<text x="530" y="78" font-size="12" fill="#6b7280">910 · 15%</text>
+<rect x="364" y="91" width="10" height="10" rx="2" fill="#59A14F"/>
+<text x="380" y="100" font-size="12" fill="#1f2733">Plan 3</text>
+<text x="530" y="100" font-size="12" fill="#6b7280">820 · 14%</text>
+<rect x="364" y="113" width="10" height="10" rx="2" fill="#E15759"/>
+<text x="380" y="122" font-size="12" fill="#1f2733">Plan 4</text>
+<text x="530" y="122" font-size="12" fill="#6b7280">730 · 12%</text>
+<rect x="364" y="135" width="10" height="10" rx="2" fill="#B07AA1"/>
+<text x="380" y="144" font-size="12" fill="#1f2733">Plan 5</text>
+<text x="530" y="144" font-size="12" fill="#6b7280">640 · 11%</text>
+<rect x="364" y="157" width="10" height="10" rx="2" fill="#76B7B2"/>
+<text x="380" y="166" font-size="12" fill="#1f2733">Plan 6</text>
+<text x="530" y="166" font-size="12" fill="#6b7280">550 · 9%</text>
+<rect x="364" y="179" width="10" height="10" rx="2" fill="#EDC949"/>
+<text x="380" y="188" font-size="12" fill="#1f2733">Plan 7</text>
+<text x="530" y="188" font-size="12" fill="#6b7280">460 · 8%</text>
+<rect x="364" y="201" width="10" height="10" rx="2" fill="#9C755F"/>
+<text x="380" y="210" font-size="12" fill="#1f2733">Other</text>
+<text x="530" y="210" font-size="12" fill="#6b7280">840 · 14%</text>
+</svg>"
+`;
+
+exports[`renderChartSVG snapshots > scatter-numeric (light) 1`] = `
+"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" class="rollmark-chart-svg" role="img" aria-label="Price vs rating. Snapshot fixture." font-family="system-ui, -apple-system, sans-serif">
+<text x="16" y="28" font-size="15" font-weight="600" fill="#1f2733">Price vs rating</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="324" font-size="11" text-anchor="end" fill="#6b7280">3.8</text>
+<line x1="56" y1="280.57142857142856" x2="624" y2="280.57142857142856" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="284.57142857142856" font-size="11" text-anchor="end" fill="#6b7280">3.9</text>
+<line x1="56" y1="241.14285714285708" x2="624" y2="241.14285714285708" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="245.14285714285708" font-size="11" text-anchor="end" fill="#6b7280">4</text>
+<line x1="56" y1="201.71428571428584" x2="624" y2="201.71428571428584" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="205.71428571428584" font-size="11" text-anchor="end" fill="#6b7280">4.1</text>
+<line x1="56" y1="162.28571428571416" x2="624" y2="162.28571428571416" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="166.28571428571416" font-size="11" text-anchor="end" fill="#6b7280">4.2</text>
+<line x1="56" y1="122.85714285714292" x2="624" y2="122.85714285714292" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="126.85714285714292" font-size="11" text-anchor="end" fill="#6b7280">4.3</text>
+<line x1="56" y1="83.42857142857129" x2="624" y2="83.42857142857129" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="87.42857142857129" font-size="11" text-anchor="end" fill="#6b7280">4.4</text>
+<line x1="56" y1="44" x2="624" y2="44" stroke="#e5e7eb" stroke-width="1"/>
+<text x="48" y="48" font-size="11" text-anchor="end" fill="#6b7280">4.5</text>
+<text x="119.11111111111111" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>10</title>10</text>
+<text x="245.33333333333331" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>20</title>20</text>
+<text x="371.55555555555554" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>30</title>30</text>
+<text x="497.77777777777777" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>40</title>40</text>
+<text x="624" y="338" font-size="11" text-anchor="middle" fill="#6b7280"><title>50</title>50</text>
+<line x1="56" y1="320" x2="624" y2="320" stroke="#d1d5db" stroke-width="1"/>
+<circle cx="118.98488888888889" cy="320" r="4" fill="#4E79A7" fill-opacity="0.85"><title>9.99 · rating: 3.8</title></circle>
+<circle cx="302.1333333333333" cy="83.42857142857129" r="4" fill="#4E79A7" fill-opacity="0.85"><title>24.5 · rating: 4.4</title></circle>
+<circle cx="623.8737777777778" cy="44" r="4" fill="#4E79A7" fill-opacity="0.85"><title>49.99 · rating: 4.5</title></circle>
+</svg>"
+`;
