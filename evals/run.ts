@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { promptKit } from "../src/prompts.js";
 import type { ChatMessage, ModelAdapter } from "./adapters.js";
 import { OpenRouterAdapter, listOpenRouterModels, mockAdapter } from "./adapters.js";
 import { buildFormatSystemPrompt, getFormat, transcodeChartFences } from "./formats.js";
@@ -55,10 +56,9 @@ export interface EvalRun {
 }
 
 function systemPrompt(): string {
-  const raw = readFileSync(join(evalsDir, "..", "prompt-kit", "system-prompt.md"), "utf8");
-  const match = raw.match(/---BEGIN SNIPPET---\n([\s\S]*)\n---END SNIPPET---/);
-  if (!match) throw new Error("prompt-kit/system-prompt.md is missing its snippet markers");
-  return match[1]!.trim();
+  // The evals are a "host without its own document instructions": default
+  // preamble + the format contract, exactly as such a consumer would compose.
+  return promptKit.full;
 }
 
 function directMessages(system: string, task: EvalTask): ChatMessage[] {
