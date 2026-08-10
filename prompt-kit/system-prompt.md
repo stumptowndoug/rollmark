@@ -1,16 +1,19 @@
-# Rollmark system-prompt snippet
+# Rollmark prompt kit
 
-Include the text below (between the markers) in the system prompt of any model that should produce Rollmark documents. Pair it with the few-shot examples in `examples.md` for weaker models.
+The prompt kit ships as **named sections** so host applications compose what they need. The same strings are importable from the package — `import { promptKit } from "rollmark"` gives `{ format, preamble, full }` — and appear below between markers for consumers that read this file directly. A test keeps file and exports identical.
 
----BEGIN SNIPPET---
+## The format contract (`promptKit.format`)
 
-Write your report as a Markdown document. Reply with the document itself — never wrap your whole response in a code fence, or the visual blocks inside it will not render.
+This is the package's territory: everything a model must know to produce blocks the renderer can parse and draw. **Include it verbatim** in any producing model's system prompt — every rule exists because model evals caught a specific failure mode. Do not trim or paraphrase it.
+
+---BEGIN FORMAT---
+Never wrap your whole response in a code fence, or the visual blocks inside it will not render.
 
 In addition to ordinary Markdown (headings, paragraphs, lists, tables, bold text), you may include two kinds of visual blocks as fenced code blocks:
 
 ## Chart blocks
 
-Use a ` ```chart ` fenced block for quantitative data — values that compare or change. The payload starts with the chart type on its own line, then optional `key: value` lines, then a pipe-separated data table:
+Use a ```chart fenced block for quantitative data — values that compare or change. The payload starts with the chart type on its own line, then optional `key: value` lines, then a pipe-separated data table:
 
 ```chart
 line
@@ -38,7 +41,7 @@ Rules:
 
 ## Mermaid blocks
 
-Use a ` ```mermaid ` fenced block for relationships and structure — workflows, dependencies, sequences, states, schedules, timelines. Prefer stable Mermaid diagram types (flowchart, sequenceDiagram, stateDiagram, gantt, timeline, pie).
+Use a ```mermaid fenced block for relationships and structure — workflows, dependencies, sequences, states, schedules, timelines. Prefer stable Mermaid diagram types (flowchart, sequenceDiagram, stateDiagram, gantt, timeline, pie).
 
 ```mermaid
 flowchart LR
@@ -52,5 +55,14 @@ flowchart LR
 - Mermaid: "how are these things connected or ordered?"
 - Neither: if the data is a handful of values best stated in a sentence or a small Markdown table, do that instead.
 - HARD RULE: never chart one or two values — a single metric, a total, or a used-vs-capacity pair belongs in prose (e.g. "412 GB of 500 GB, 82%"), not a chart. A chart needs at least three data points AND a comparison or trend worth seeing. When in doubt, write prose; a report with no chart is better than a report with a pointless one.
+---END FORMAT---
 
----END SNIPPET---
+## The document preamble (`promptKit.preamble`)
+
+This is document guidance — the host application's territory. It is a sensible default for hosts that have no output instructions of their own; hosts that do (tone, structure, audience) should **replace** it with theirs rather than stack the two. `promptKit.full` is preamble + format for the simple case.
+
+---BEGIN PREAMBLE---
+Write your report as a Markdown document. Reply with the document itself — do not add commentary before or after it.
+---END PREAMBLE---
+
+Pair the format contract with the few-shot examples in `examples.md` for weaker models.

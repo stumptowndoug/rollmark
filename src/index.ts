@@ -4,6 +4,7 @@ export { parseChartDsl, validateChartPayload } from "./parse-dsl.js";
 export { renderChartSVG } from "./render-svg.js";
 export type { ChartColors, RenderSvgOptions } from "./render-svg.js";
 export { PALETTES } from "./palettes.js";
+export { promptKit } from "./prompts.js";
 export type { PaletteName } from "./palettes.js";
 export { rollmarkPlugin } from "./markdown-it-plugin.js";
 export type { RollmarkEnvState } from "./markdown-it-plugin.js";
