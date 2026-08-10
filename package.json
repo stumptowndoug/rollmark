@@ -1,6 +1,6 @@
 {
   "name": "rollmark",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Markdown-based document format and renderer for AI-generated reports with charts: a tiny LLM-friendly chart DSL, strict validation, and an opinionated SVG renderer.",
   "license": "MIT",
   "repository": {

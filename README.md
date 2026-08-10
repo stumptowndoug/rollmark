@@ -210,11 +210,13 @@ await mountRollmarkDocument(container, markdownFromYourModel, {
 // Hover tooltips are on automatically (tooltips: false to opt out).
 ```
 
-Server-side, `renderRollmark()` and `renderChartSVG()` return HTML and SVG strings with no DOM. Install from a release tarball until the npm publish:
+Server-side, `renderRollmark()` and `renderChartSVG()` return HTML and SVG strings with no DOM.
 
-```json
-"rollmark": "https://github.com/stumptowndoug/rollmark/releases/download/v0.1.2/rollmark-0.1.2.tgz"
+```sh
+npm install rollmark
 ```
+
+(Prebuilt tarballs are also attached to every [GitHub release](https://github.com/stumptowndoug/rollmark/releases).)
 
 | To go deeper | |
 |---|---|
