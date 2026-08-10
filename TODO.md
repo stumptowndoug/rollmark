@@ -24,6 +24,8 @@
 
 ## ✅ Done
 
+- [x] Prompt kit split into composable sections: `promptKit.{format,preamble,full}` + marked md, drift-proof tests (PR #4, shipped in v0.1.2) — flagged by the Springroll integration
+
 - [x] App-level color overrides (consumer API, never model-facing; baked into SVG) — PR #3, shipped in v0.1.1
 - [x] Built-in palette variations (default / okabe-ito / muted / monochrome, per-theme, gallery dimension) — PR #3, shipped in v0.1.1
 - [x] Proper hover tooltips in the mount layer (automatic from chart data; per-mark only) — PR #3, shipped in v0.1.1
