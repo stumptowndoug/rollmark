@@ -24,6 +24,8 @@
 
 ## ✅ Done
 
+- [x] Published to npm as `@stumptowndoug/rollmark@0.1.3` (unscoped name blocked by typosquat rule vs rollbar; springroll scope collides with the existing SpringRoll project) — registry install smoke-tested, v0.1.3 tag + GitHub release mirrored
+
 - [x] Prompt kit split into composable sections: `promptKit.{format,preamble,full}` + marked md, drift-proof tests (PR #4, shipped in v0.1.2) — flagged by the Springroll integration
 
 - [x] App-level color overrides (consumer API, never model-facing; baked into SVG) — PR #3, shipped in v0.1.1
