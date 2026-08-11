@@ -49,9 +49,9 @@ jobs:
       - run: |
           npm pack
           mkdir /tmp/smoke && cd /tmp/smoke && npm init -y
-          npm install "$GITHUB_WORKSPACE"/rollmark-*.tgz
+          npm install "$GITHUB_WORKSPACE"/*rollmark-*.tgz
           node --input-type=module -e "
-            import { renderRollmark, renderChartSVG } from 'rollmark';
+            import { renderRollmark, renderChartSVG } from '@stumptowndoug/rollmark';
             const { blocks } = renderRollmark('\`\`\`chart\nbar\nsummary: s\n\nk | v\na | 1\n\`\`\`\n');
             const svg = renderChartSVG(blocks[0].spec);
             if (!svg.includes('</svg>')) throw new Error('render failed');

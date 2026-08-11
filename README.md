@@ -195,7 +195,7 @@ One more rule ties the vocabulary together: every chart carries a `summary:` sen
 
 ```ts
 import mermaid from "mermaid"; // optional, for diagram blocks
-import { mountRollmarkDocument, promptKit } from "rollmark";
+import { mountRollmarkDocument, promptKit } from "@stumptowndoug/rollmark";
 
 // 1. Tell your model the format (host-owned document instructions + the contract):
 const system = `${yourOutputInstructions}\n\n${promptKit.format}`;
@@ -213,7 +213,7 @@ await mountRollmarkDocument(container, markdownFromYourModel, {
 Server-side, `renderRollmark()` and `renderChartSVG()` return HTML and SVG strings with no DOM.
 
 ```sh
-npm install rollmark
+npm install @stumptowndoug/rollmark
 ```
 
 (Prebuilt tarballs are also attached to every [GitHub release](https://github.com/stumptowndoug/rollmark/releases).)

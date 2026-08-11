@@ -1,6 +1,6 @@
 import mermaid from "mermaid";
-import { mountRollmarkDocument } from "rollmark";
-import type { MountedRollmark } from "rollmark";
+import { mountRollmarkDocument } from "@stumptowndoug/rollmark";
+import type { MountedRollmark } from "@stumptowndoug/rollmark";
 
 export const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 

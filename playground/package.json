@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "mermaid": "^11.4.0",
-    "rollmark": "file:.."
+    "@stumptowndoug/rollmark": "file:.."
   },
   "devDependencies": {
     "typescript": "^5.5.0",

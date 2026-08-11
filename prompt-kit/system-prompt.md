@@ -1,6 +1,6 @@
 # Rollmark prompt kit
 
-The prompt kit ships as **named sections** so host applications compose what they need. The same strings are importable from the package — `import { promptKit } from "rollmark"` gives `{ format, preamble, full }` — and appear below between markers for consumers that read this file directly. A test keeps file and exports identical.
+The prompt kit ships as **named sections** so host applications compose what they need. The same strings are importable from the package — `import { promptKit } from "@stumptowndoug/rollmark"` gives `{ format, preamble, full }` — and appear below between markers for consumers that read this file directly. A test keeps file and exports identical.
 
 ## The format contract (`promptKit.format`)
 
