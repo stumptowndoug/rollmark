@@ -3,14 +3,11 @@
 ## 📋 Backlog
 
 
-- [ ] `npm publish` when ready (the v0.1.0 release tarball is the rehearsal artifact)
-- [ ] Springroll-side: depend on the v0.1.0 release tarball URL and wrap `mountRollmarkDocument` (in progress in the Springroll session, branch codex/integrate-rollmark)
-
-- [ ] Phase 2: Springroll integration behind thin API (`<Rollmark content={...} />`)
+- [ ] Hacker News Show HN: drafts (title, first comment, objection crib sheet) + repo topics, then Doug posts
+- [ ] Springroll-side: switch dependency to `"@stumptowndoug/rollmark": "^0.1.3"` and update import specifiers (Springroll session)
 - [ ] Phase 2: streaming-aware rendering (skeleton while fence open, upgrade on close)
 - [ ] Phase 2: static export adapter (SVG/PNG) for PDF and email
 - [ ] Phase 2: evaluate Flint as an alternate `ChartCompiler` against the eval suite
-- [ ] Phase 2: additional chart types as evals justify (pie, area, scatter)
 - [ ] Phase 2: `vega-lite` escape-hatch fence
 - [ ] Phase 2: decide on Rollmark document tree (Option B) if placeholder-mounting proves awkward
 - [ ] Phase 3: split into published packages (`@rollmark/core`, `@rollmark/react`, `@rollmark/markdown-it`)
